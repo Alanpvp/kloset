@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kloset — Meu Armário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --neon: #C8F250;
+  --pink: #FF6BBA;
+  --cream: #FAF7F0;
+  --ink: #0F0E0D;
+  --muted: #6B6760;
+  --border: rgba(15,14,13,0.10);
+  --purple: #9747FF;
+  --orange: #FF6B35;
+  --white: #FFFFFF;
+  --surface: #F4F1E8;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 2.5rem;
+  background: rgba(250,247,240,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.45rem;
+  letter-spacing: -0.04em; color: var(--ink);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo .badge {
+  background: var(--neon); color: var(--ink);
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+}
+.nav-center {
+  display: flex; gap: 4px;
+  background: var(--surface); border-radius: 100px;
+  padding: 4px;
+}
+.nav-tab {
+  padding: 0.45rem 1.2rem; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 500;
+  color: var(--muted); text-decoration: none;
+  transition: all 0.2s;
+}
+.nav-tab.active {
+  background: var(--ink); color: var(--cream);
+}
+.nav-tab:hover:not(.active) { color: var(--ink); }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.btn-upload {
+  background: var(--purple); color: white;
+  padding: 0.5rem 1.3rem; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 500;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.btn-upload:hover { background: #7c35e0; transform: translateY(-1px); }
+.avatar-mini {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #E8D5FF, #C8F250);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; cursor: pointer; border: 2px solid var(--border);
+}
+
+/* LAYOUT */
+.app-layout {
+  display: flex;
+  padding-top: 62px;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 0;
+  position: sticky; top: 62px;
+  height: calc(100vh - 62px);
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.sidebar-section { margin-bottom: 1.8rem; }
+.sidebar-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(107,103,96,0.6);
+  padding: 0 1.2rem; margin-bottom: 0.5rem;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.6rem 1.2rem; cursor: pointer;
+  transition: background 0.15s; color: var(--muted);
+  font-size: 0.875rem; font-weight: 500;
+  border: none; background: none; width: 100%;
+  text-align: left; font-family: 'DM Sans', sans-serif;
+}
+.sidebar-item:hover { background: var(--surface); color: var(--ink); }
+.sidebar-item.active { background: var(--surface); color: var(--ink); }
+.sidebar-item .s-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; flex-shrink: 0;
+}
+.sidebar-item .s-count {
+  margin-left: auto; background: var(--surface);
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 100px;
+  color: var(--muted);
+}
+.sidebar-item.active .s-count { background: rgba(151,71,255,0.12); color: var(--purple); }
+
+.sidebar-stats { padding: 1rem 1.2rem; margin-top: auto; }
+.stat-mini-card {
+  background: var(--surface); border-radius: 12px;
+  padding: 1rem;
+}
+.stat-mini-card h4 {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.5rem; letter-spacing: -0.04em;
+  color: var(--ink);
+}
+.stat-mini-card p { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.stat-mini-row { display: flex; gap: 8px; margin-top: 10px; }
+.stat-mini {
+  flex: 1; background: white; border-radius: 8px;
+  padding: 8px; text-align: center;
+}
+.stat-mini strong { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; display: block; }
+.stat-mini span { font-size: 0.65rem; color: var(--muted); }
+
+/* MAIN */
+.main-content { flex: 1; padding: 2rem 2.5rem; min-width: 0; }
+
+/* TOOLBAR */
+.toolbar {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.8rem; flex-wrap: wrap;
+}
+.toolbar-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+.page-title {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.6rem; letter-spacing: -0.03em;
+}
+.items-count {
+  background: var(--purple); color: white;
+  font-size: 0.72rem; font-weight: 700;
+  padding: 3px 10px; border-radius: 100px;
+}
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 100px; padding: 0.5rem 1rem;
+  flex: 1; max-width: 320px;
+}
+.search-bar input {
+  border: none; outline: none; background: none;
+  font-size: 0.875rem; font-family: 'DM Sans', sans-serif;
+  color: var(--ink); width: 100%;
+}
+.search-bar input::placeholder { color: var(--muted); }
+.search-icon { font-size: 0.9rem; color: var(--muted); }
+
+.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.chip {
+  padding: 0.4rem 1rem; border-radius: 100px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-size: 0.78rem; font-weight: 500; cursor: pointer;
+  transition: all 0.18s; color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+}
+.chip:hover { border-color: var(--ink); color: var(--ink); }
+.chip.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.chip.color-chip { display: flex; align-items: center; gap: 6px; }
+.color-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* SORT ROW */
+.sort-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+.sort-row span { font-size: 0.8rem; color: var(--muted); }
+.view-toggle { display: flex; gap: 4px; }
+.view-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 0.85rem; transition: all 0.15s;
+  color: var(--muted);
+}
+.view-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+/* CLOTHES GRID */
+.clothes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 1rem;
+}
+.clothes-grid.list-view {
+  grid-template-columns: 1fr;
+}
+
+.clothing-card {
+  background: var(--white); border-radius: 18px;
+  border: 1.5px solid var(--border);
+  overflow: hidden; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+}
+.clothing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+  border-color: rgba(15,14,13,0.2);
+}
+.clothing-card .card-img {
+  aspect-ratio: 3/4; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 3.5rem; position: relative;
+  overflow: hidden;
+}
+.card-img-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0); transition: background 0.2s;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+}
+.clothing-card:hover .card-img-overlay { background: rgba(0,0,0,0.12); }
+.overlay-btn {
+  background: white; width: 34px; height: 34px;
+  border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 0.85rem;
+  opacity: 0; transform: scale(0.7);
+  transition: all 0.2s; cursor: pointer;
+  border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.clothing-card:hover .overlay-btn { opacity: 1; transform: scale(1); }
+.overlay-btn:nth-child(2) { transition-delay: 0.04s; }
+
+.card-body { padding: 0.75rem 0.9rem; }
+.card-category {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
+}
+.card-name { font-weight: 600; font-size: 0.875rem; margin-bottom: 6px; }
+.card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.card-tag {
+  font-size: 0.65rem; font-weight: 600; padding: 2px 7px;
+  border-radius: 100px; background: var(--surface);
+  color: var(--muted);
+}
+.card-uses {
+  font-size: 0.65rem; color: var(--muted);
+  margin-left: auto; display: flex; align-items: center; gap: 3px;
+}
+.card-cost {
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 100px;
+  margin-top: 5px; display: inline-block;
+}
+.cost-green { background: rgba(200,242,80,0.2); color: #3a7000; }
+.cost-orange { background: rgba(255,107,53,0.12); color: #c05020; }
+.cost-purple { background: rgba(151,71,255,0.12); color: var(--purple); }
+
+/* BADGE INDICATORS */
+.card-badge {
+  position: absolute; top: 8px; left: 8px;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
+  padding: 3px 8px; border-radius: 100px; z-index: 2;
+}
+.badge-new { background: var(--neon); color: var(--ink); }
+.badge-fav { background: var(--pink); color: white; }
+.badge-dusty { background: rgba(255,107,53,0.9); color: white; }
+
+/* DESENCALHAR BANNER */
+.desencalhar-banner {
+  background: var(--ink); border-radius: 18px;
+  padding: 1.5rem 1.8rem;
+  display: flex; align-items: center; gap: 1.5rem;
+  margin-bottom: 2rem; position: relative; overflow: hidden;
+}
+.desencalhar-banner::before {
+  content: '';
+  position: absolute; right: -40px; top: -40px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(200,242,80,0.1);
+}
+.desencalhar-banner::after {
+  content: '';
+  position: absolute; right: 60px; bottom: -30px;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: rgba(151,71,255,0.1);
+}
+.desencalhar-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(200,242,80,0.15); border: 1px solid rgba(200,242,80,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0; z-index: 1;
+}
+.desencalhar-text { flex: 1; z-index: 1; }
+.desencalhar-text h3 {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 1rem; color: var(--cream); margin-bottom: 3px;
+}
+.desencalhar-text p { font-size: 0.8rem; color: rgba(250,247,240,0.5); }
+.desencalhar-btn {
+  background: var(--neon); color: var(--ink);
+  padding: 0.6rem 1.4rem; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  font-family: 'DM Sans', sans-serif; z-index: 1;
+  transition: all 0.2s;
+}
+.desencalhar-btn:hover { background: #d8ff5e; transform: scale(1.03); }
+
+/* UPLOAD AREA */
+.upload-card {
+  background: white; border-radius: 18px;
+  border: 2px dashed rgba(151,71,255,0.3);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 1.5rem 1rem;
+  cursor: pointer; transition: all 0.2s;
+  aspect-ratio: 3/4;
+  min-height: 220px;
+}
+.upload-card:hover {
+  border-color: var(--purple);
+  background: rgba(151,71,255,0.03);
+}
+.upload-card .up-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(151,71,255,0.1); color: var(--purple);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; margin-bottom: 0.8rem;
+}
+.upload-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.upload-card strong { display: block; font-size: 0.82rem; color: var(--ink); margin-bottom: 4px; }
+
+/* LOOK DO DIA PANEL */
+.look-panel {
+  background: var(--white); border-radius: 20px;
+  border: 1.5px solid var(--border); padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.look-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+.look-panel-header h3 {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 1rem;
+}
+.look-panel-header span {
+  font-size: 0.75rem; color: var(--muted);
+  display: flex; align-items: center; gap: 5px;
+}
+.weather-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(200,242,80,0.15); border-radius: 100px;
+  padding: 4px 10px; font-size: 0.72rem; font-weight: 600;
+  color: #3a7000;
+}
+.look-items { display: flex; gap: 10px; }
+.look-piece {
+  flex: 1; background: var(--surface); border-radius: 14px;
+  padding: 0.9rem; display: flex; flex-direction: column;
+  align-items: center; gap: 6px; position: relative;
+}
+.look-piece-emoji { font-size: 2rem; }
+.look-piece-name { font-size: 0.68rem; font-weight: 600; text-align: center; }
+.look-piece-color {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,0.1);
+}
+.look-actions { display: flex; gap: 8px; margin-top: 1rem; }
+.look-btn {
+  flex: 1; padding: 0.6rem; border-radius: 100px;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'DM Sans', sans-serif; transition: all 0.18s;
+}
+.look-btn:hover { border-color: var(--ink); background: var(--ink); color: var(--cream); }
+.look-btn.primary { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.look-btn.primary:hover { background: var(--purple); border-color: var(--purple); }
+
+/* XP BAR */
+.xp-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.8rem 1.2rem; margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+.xp-info { flex: 1; }
+.xp-info small { font-size: 0.65rem; color: var(--muted); }
+.xp-info strong { font-size: 0.8rem; font-weight: 700; display: block; }
+.xp-bar { height: 5px; background: var(--surface); border-radius: 100px; margin-top: 4px; overflow: hidden; }
+.xp-fill { height: 100%; width: 62%; background: linear-gradient(to right, var(--purple), var(--neon)); border-radius: 100px; }
+.xp-badge { font-size: 1.3rem; }
+
+/* MODAL OVERLAY */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,14,13,0.5); z-index: 300;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 24px;
+  padding: 2rem; width: 460px; max-width: 95vw;
+  position: relative; animation: popIn 0.25s ease;
+}
+@keyframes popIn { from { opacity:0; transform:scale(0.92) translateY(20px); } to { opacity:1; transform:none; } }
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--surface); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--muted); transition: all 0.15s;
+}
+.modal-close:hover { background: var(--ink); color: var(--cream); }
+.modal h3 {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.3rem; margin-bottom: 0.3rem;
+}
+.modal p { font-size: 0.875rem; color: var(--muted); margin-bottom: 1.5rem; }
+.modal-upload-area {
+  border: 2px dashed rgba(151,71,255,0.35);
+  border-radius: 16px; padding: 2.5rem;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; margin-bottom: 1.2rem;
+  background: rgba(151,71,255,0.02);
+}
+.modal-upload-area:hover { border-color: var(--purple); background: rgba(151,71,255,0.05); }
+.modal-upload-area .big-icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
+.modal-upload-area strong { display: block; font-size: 0.9rem; margin-bottom: 3px; }
+.modal-upload-area span { font-size: 0.78rem; color: var(--muted); }
+.ai-tags-preview {
+  background: var(--surface); border-radius: 12px;
+  padding: 1rem; margin-bottom: 1.2rem;
+}
+.ai-tags-preview h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.ai-tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.ai-tag {
+  padding: 4px 12px; border-radius: 100px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.ai-tag.purple { background: rgba(151,71,255,0.12); color: var(--purple); }
+.ai-tag.neon { background: rgba(200,242,80,0.2); color: #3a7000; }
+.ai-tag.pink { background: rgba(255,107,186,0.12); color: #cc3388; }
+.modal-submit {
+  width: 100%; padding: 0.9rem;
+  background: var(--ink); color: var(--cream);
+  border: none; border-radius: 100px;
+  font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+.modal-submit:hover { background: var(--purple); }
+
+/* DESENCALHAR MODAL */
+.desenc-steps { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.desenc-step {
+  flex: 1; background: var(--surface); border-radius: 12px;
+  padding: 1rem; text-align: center;
+}
+.desenc-step .step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--purple); color: white;
+  font-size: 0.72rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.desenc-step p { font-size: 0.72rem; color: var(--muted); line-height: 1.5; }
+
+/* ANIMAÇÕES */
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+.clothes-grid .clothing-card { animation: fadeUp 0.4s ease both; }
+.clothing-card:nth-child(1) { animation-delay: 0.04s; }
+.clothing-card:nth-child(2) { animation-delay: 0.08s; }
+.clothing-card:nth-child(3) { animation-delay: 0.12s; }
+.clothing-card:nth-child(4) { animation-delay: 0.16s; }
+.clothing-card:nth-child(5) { animation-delay: 0.20s; }
+.clothing-card:nth-child(6) { animation-delay: 0.24s; }
+.clothing-card:nth-child(7) { animation-delay: 0.28s; }
+.clothing-card:nth-child(8) { animation-delay: 0.32s; }
+.clothing-card:nth-child(9) { animation-delay: 0.36s; }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-content { padding: 1.2rem; }
+  .nav-center { display: none; }
+  .clothes-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="guarda-roupa-virtual.html" class="nav-logo">Kloset <span class="badge">BETA</span></a>
+  <div class="nav-center">
+    <a href="kloset-armario.html" class="nav-tab active"> Armário</a>
+    <a href="kloset-wishlist.html" class="nav-tab"> Wishlist</a>
+    <a href="kloset-calendario_1 (1).html" class="nav-tab"> Calendário</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-upload" onclick="openModal('upload')">
+      ＋ Adicionar peça
+    </button>
+    <div class="avatar-mini" title="Meu avatar">😊</div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Categorias</div>
+      <button class="sidebar-item active" onclick="filterCategory('todos')">
+        <span class="s-icon" style="background:#F0E8FF;">👗</span>
+        Todas as peças
+        <span class="s-count">47</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('camisetas')">
+        <span class="s-icon" style="background:#E8F8FF;">👕</span>
+        Camisetas
+        <span class="s-count">12</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('calcas')">
+        <span class="s-icon" style="background:#FFF0E8;">👖</span>
+        Calças
+        <span class="s-count">8</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('vestidos')">
+        <span class="s-icon" style="background:#FFE8F5;">👗</span>
+        Vestidos
+        <span class="s-count">6</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('casacos')">
+        <span class="s-icon" style="background:#F0FFE8;">🧥</span>
+        Casacos
+        <span class="s-count">5</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('sapatos')">
+        <span class="s-icon" style="background:#FFF8E8;">👟</span>
+        Sapatos
+        <span class="s-count">9</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('acessorios')">
+        <span class="s-icon" style="background:#F8F0FF;">💍</span>
+        Acessórios
+        <span class="s-count">7</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filtros rápidos</div>
+      <button class="sidebar-item" onclick="filterCategory('favoritas')">
+        <span class="s-icon" style="background:#FFE8F5;">❤️</span>
+        Favoritas
+        <span class="s-count">11</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('paradas')">
+        <span class="s-icon" style="background:#FFE8E8;">🕰️</span>
+        Paradas +30 dias
+        <span class="s-count">4</span>
+      </button>
+      <button class="sidebar-item" onclick="filterCategory('novas')">
+        <span class="s-icon" style="background:#F5FFD5;">✨</span>
+        Adicionadas recente
+        <span class="s-count">3</span>
+      </button>
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="stat-mini-card">
+        <h4>47</h4>
+        <p>peças no armário</p>
+        <div class="stat-mini-row">
+          <div class="stat-mini">
+            <strong>23x</strong>
+            <span>looks criados</span>
+          </div>
+          <div class="stat-mini">
+            <strong>R$4,20</strong>
+            <span>custo médio/uso</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="xp-row">
+      <span class="xp-badge">⭐</span>
+      <div class="xp-info">
+        <strong>Style Insider · Nível 4</strong>
+        <small>620 / 1000 XP</small>
+        <div class="xp-bar"><div class="xp-fill"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- LOOK DO DIA -->
+    <div class="look-panel">
+      <div class="look-panel-header">
+        <h3>✨ Look de hoje — Quarta-feira</h3>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="weather-pill">☀️ 24°C · Ensolarado</div>
+          <span style="font-size:0.75rem; color:var(--muted);">Sugestão da IA</span>
+        </div>
+      </div>
+      <div class="look-items">
+        <div class="look-piece">
+          <div class="look-piece-emoji">👕</div>
+          <div class="look-piece-name">Cropped off-white</div>
+          <div class="look-piece-color" style="background:#F5F0E8;"></div>
+        </div>
+        <div class="look-piece">
+          <div class="look-piece-emoji">👖</div>
+          <div class="look-piece-name">Calça cargo verde</div>
+          <div class="look-piece-color" style="background:#5C8A4A;"></div>
+        </div>
+        <div class="look-piece">
+          <div class="look-piece-emoji">👟</div>
+          <div class="look-piece-name">Tênis chunky bege</div>
+          <div class="look-piece-color" style="background:#D4BFA0;"></div>
+        </div>
+        <div class="look-piece">
+          <div class="look-piece-emoji">🧢</div>
+          <div class="look-piece-name">Boné preto</div>
+          <div class="look-piece-color" style="background:#1A1A1A;"></div>
+        </div>
+      </div>
+      <div class="look-actions">
+        <button class="look-btn" onclick="refreshLook()">🔄 Outro look</button>
+        <button class="look-btn" onclick="saveLook()">🗓️ Salvar no calendário</button>
+        <button class="look-btn primary">✓ Vou usar hoje</button>
+      </div>
+    </div>
+
+    <!-- BANNER DESENCALHAR -->
+    <div class="desencalhar-banner">
+      <div class="desencalhar-icon">🔓</div>
+      <div class="desencalhar-text">
+        <h3>Bota preta parada há 47 dias — quer desencalhar?</h3>
+        <p>A IA vai criar 3 looks estilosos usando ela com o que você já tem no armário.</p>
+      </div>
+      <button class="desencalhar-btn" onclick="openModal('desencalhar')">Desencalhar agora →</button>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h1 class="page-title">Todas as peças</h1>
+        <span class="items-count">47 itens</span>
+      </div>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Buscar por nome, cor, marca..." oninput="searchItems(this.value)">
+      </div>
+    </div>
+
+    <!-- FILTER CHIPS -->
+    <div class="filter-chips" id="filter-chips">
+      <button class="chip active" onclick="toggleChip(this, 'Todas')">Todas</button>
+      <button class="chip" onclick="toggleChip(this, 'Streetwear')">Streetwear</button>
+      <button class="chip" onclick="toggleChip(this, 'Y2K')">Y2K</button>
+      <button class="chip" onclick="toggleChip(this, 'Clean Girl')">Clean Girl</button>
+      <button class="chip" onclick="toggleChip(this, 'Casual')">Casual</button>
+      <button class="chip color-chip" onclick="toggleChip(this, 'Preto')"><span class="color-dot" style="background:#1A1A1A;"></span>Preto</button>
+      <button class="chip color-chip" onclick="toggleChip(this, 'Branco')"><span class="color-dot" style="background:#F5F0E0; border:1px solid #ddd;"></span>Branco</button>
+      <button class="chip color-chip" onclick="toggleChip(this, 'Lilás')"><span class="color-dot" style="background:#C8A8FF;"></span>Lilás</button>
+      <button class="chip color-chip" onclick="toggleChip(this, 'Verde')"><span class="color-dot" style="background:#5C8A4A;"></span>Verde</button>
+    </div>
+
+    <!-- SORT ROW -->
+    <div class="sort-row">
+      <span id="sort-label">Mostrando <strong>47 peças</strong> · Ordenar por: <strong>Recentes</strong></span>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('grid')" title="Grade">⊞</button>
+        <button class="view-btn" onclick="setView('list')" title="Lista">☰</button>
+      </div>
+    </div>
+
+    <!-- CLOTHES GRID -->
+    <div class="clothes-grid" id="clothes-grid">
+
+      <!-- Card 1 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#F5F0E8,#EDE5D5);">
+          <span class="card-badge badge-new">NOVA</span>
+          👕
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Favoritar" onclick="toggleFav(this)">❤️</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Camiseta</div>
+          <div class="card-name">Cropped off-white manga longa</div>
+          <div class="card-meta">
+            <span class="card-tag">Clean Girl</span>
+            <span class="card-tag">Casual</span>
+          </div>
+          <span class="card-cost cost-green">R$2,10/uso · 12x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#D5E8D5,#C0D8B0);">
+          <span class="card-badge badge-fav">❤️ FAV</span>
+          👖
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Favoritar" onclick="toggleFav(this)">❤️</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Calça</div>
+          <div class="card-name">Calça cargo verde militar</div>
+          <div class="card-meta">
+            <span class="card-tag">Streetwear</span>
+            <span class="card-tag">Gorpcore</span>
+          </div>
+          <span class="card-cost cost-green">R$3,50/uso · 8x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#E8D5FF,#D0B0FF);">
+          👗
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Favoritar" onclick="toggleFav(this)">❤️</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Vestido</div>
+          <div class="card-name">Vestido midi lilás fluido</div>
+          <div class="card-meta">
+            <span class="card-tag">Y2K</span>
+            <span class="card-tag">Festa</span>
+          </div>
+          <span class="card-cost cost-purple">R$18/uso · 3x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#1A1A1A,#333);">
+          <span class="card-badge badge-dusty">47 DIAS</span>
+          👢
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Desencalhar" onclick="openModal('desencalhar')">🔓</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Calçado</div>
+          <div class="card-name">Bota cano curto preta</div>
+          <div class="card-meta">
+            <span class="card-tag">Dark</span>
+            <span class="card-tag">Outono</span>
+          </div>
+          <span class="card-cost cost-orange">R$21/uso · 2x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#FFF0D5,#FFE0B0);">
+          🧥
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Favoritar" onclick="toggleFav(this)">❤️</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Casaco</div>
+          <div class="card-name">Blazer oversized caramelo</div>
+          <div class="card-meta">
+            <span class="card-tag">Old Money</span>
+            <span class="card-tag">Trabalho</span>
+          </div>
+          <span class="card-cost cost-green">R$4,80/uso · 7x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#FFE8F5,#FFD0EE);">
+          <span class="card-badge badge-fav">❤️ FAV</span>
+          👛
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Favoritar" onclick="toggleFav(this)">❤️</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Acessório</div>
+          <div class="card-name">Bolsa mini rosa quartz</div>
+          <div class="card-meta">
+            <span class="card-tag">Coquette</span>
+            <span class="card-tag">Y2K</span>
+          </div>
+          <span class="card-cost cost-green">R$2,60/uso · 14x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 7 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#D5F0FF,#B0E0FF);">
+          👟
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Favoritar" onclick="toggleFav(this)">❤️</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Calçado</div>
+          <div class="card-name">Tênis chunky azul celeste</div>
+          <div class="card-meta">
+            <span class="card-tag">Streetwear</span>
+            <span class="card-tag">Y2K</span>
+          </div>
+          <span class="card-cost cost-green">R$3,10/uso · 11x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 8 -->
+      <div class="clothing-card">
+        <div class="card-img" style="background: linear-gradient(135deg,#F5FFD5,#DEFF90);">
+          <span class="card-badge badge-new">NOVA</span>
+          🧣
+          <div class="card-img-overlay">
+            <button class="overlay-btn" title="Favoritar" onclick="toggleFav(this)">❤️</button>
+            <button class="overlay-btn" title="Criar look" onclick="createLook(this)">✨</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Acessório</div>
+          <div class="card-name">Lenço seda verde-limão</div>
+          <div class="card-meta">
+            <span class="card-tag">Vintage</span>
+            <span class="card-tag">Cottagecore</span>
+          </div>
+          <span class="card-cost cost-purple">R$29/uso · 1x usada</span>
+        </div>
+      </div>
+
+      <!-- Card 9 — UPLOAD -->
+      <div class="upload-card" onclick="openModal('upload')">
+        <div class="up-icon">＋</div>
+        <strong>Adicionar peça</strong>
+        <p>Foto em lote · A IA categoriza e remove o fundo automaticamente</p>
+      </div>
+
+    </div><!-- /clothes-grid -->
+  </main>
+</div>
+
+<!-- MODAL UPLOAD -->
+<div class="modal-bg" id="modal-upload">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('upload')">✕</button>
+    <h3>Adicionar nova peça</h3>
+    <p>A IA vai identificar a categoria, cor e remover o fundo automaticamente.</p>
+
+    <div class="modal-upload-area" onclick="this.style.borderColor='var(--purple)'">
+      <div class="big-icon">📸</div>
+      <strong>Arraste fotos ou clique para fazer upload</strong>
+      <span>PNG, JPG ou HEIC · Até 20 fotos de uma vez</span>
+    </div>
+
+    <div class="ai-tags-preview">
+      <h4>🤖 IA identificou automaticamente</h4>
+      <div class="ai-tag-row">
+        <span class="ai-tag purple">Categoria: Camiseta</span>
+        <span class="ai-tag neon">Cor: Off-white</span>
+        <span class="ai-tag pink">Estilo: Clean Girl</span>
+        <span class="ai-tag purple">Ocasião: Casual</span>
+      </div>
+    </div>
+
+    <button class="modal-submit" onclick="closeModal('upload')">✓ Salvar no armário</button>
+  </div>
+</div>
+
+<!-- MODAL DESENCALHAR -->
+<div class="modal-bg" id="modal-desencalhar">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('desencalhar')">✕</button>
+    <h3>🔓 Desencalhar peça</h3>
+    <p>A IA vai criar combinações estilosas com a bota preta usando só o que você já tem.</p>
+
+    <div class="desenc-steps">
+      <div class="desenc-step">
+        <div class="step-num">1</div>
+        <p>Seleciona a peça parada</p>
+      </div>
+      <div class="desenc-step">
+        <div class="step-num">2</div>
+        <p>IA gera 3 looks completos</p>
+      </div>
+      <div class="desenc-step">
+        <div class="step-num">3</div>
+        <p>Salva no calendário</p>
+      </div>
+    </div>
+
+    <div style="background:var(--surface); border-radius:14px; padding:1.2rem; margin-bottom:1.2rem;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:1rem;">
+        <div style="width:48px;height:48px;background:linear-gradient(135deg,#1A1A1A,#333);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">👢</div>
+        <div>
+          <strong style="font-size:0.9rem;">Bota cano curto preta</strong>
+          <p style="font-size:0.75rem; color:var(--muted);">Parada há 47 dias · R$21/uso atual</p>
+        </div>
+        <span style="margin-left:auto; background:rgba(255,107,53,0.12); color:#c05020; font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:100px;">⚠️ PARADA</span>
+      </div>
+    </div>
+
+    <button class="modal-submit" onclick="generateLooks()">🤖 Gerar looks com IA →</button>
+  </div>
+</div>
+
+<script>
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+}
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+function toggleChip(el, label) {
+  document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleFav(btn) {
+  btn.textContent = btn.textContent === '❤️' ? '🤍' : '❤️';
+}
+
+function setView(type) {
+  const grid = document.getElementById('clothes-grid');
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  if (type === 'list') {
+    grid.classList.add('list-view');
+    event.target.classList.add('active');
+  } else {
+    grid.classList.remove('list-view');
+    event.target.classList.add('active');
+  }
+}
+
+function filterCategory(cat) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const title = event.currentTarget.querySelector('span:not(.s-icon):not(.s-count)');
+  if (title) document.querySelector('.page-title').textContent = title.textContent.trim();
+}
+
+function refreshLook() {
+  const looks = [
+    ['👗', 'Vestido midi lilás', '👟', 'Tênis chunky azul', '👛', 'Bolsa mini rosa', '🧣', 'Lenço verde'],
+    ['🧥', 'Blazer oversized', '👖', 'Calça cargo verde', '👟', 'Tênis chunky', '🕶️', 'Óculos retrô'],
+    ['👕', 'Cropped off-white', '👖', 'Calça skinny preta', '👢', 'Bota preta', '💍', 'Anel prata'],
+  ];
+  const pick = looks[Math.floor(Math.random() * looks.length)];
+  const pieces = document.querySelectorAll('.look-piece');
+  pieces.forEach((p, i) => {
+    if (pick[i*2]) {
+      p.querySelector('.look-piece-emoji').textContent = pick[i*2];
+      p.querySelector('.look-piece-name').textContent = pick[i*2+1];
+    }
+  });
+}
+
+function saveLook() {
+  const btn = event.target;
+  btn.textContent = '✓ Salvo!';
+  btn.style.background = 'var(--neon)';
+  btn.style.color = 'var(--ink)';
+  setTimeout(() => {
+    btn.textContent = '🗓️ Salvar no calendário';
+    btn.style.background = '';
+    btn.style.color = '';
+  }, 2000);
+}
+
+function createLook(btn) {
+  const card = btn.closest('.clothing-card');
+  const name = card.querySelector('.card-name')?.textContent;
+  alert('🤖 IA criando looks com: ' + name);
+}
+
+function searchItems(val) {
+  const label = document.getElementById('sort-label');
+  if (val) {
+    label.innerHTML = `Buscando por "<strong>${val}</strong>"`;
+  } else {
+    label.innerHTML = `Mostrando <strong>47 peças</strong> · Ordenar por: <strong>Recentes</strong>`;
+  }
+}
+
+function generateLooks() {
+  closeModal('desencalhar');
+  setTimeout(() => alert('✨ 3 looks gerados com a bota preta! Confira no painel "Look IA".'), 300);
+}
+</script>
+</body>
+</html>

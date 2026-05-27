@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KLOSET — Calendário de Looks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --neon: #C8F250;
+    --pink: #FF6BBA;
+    --cream: #FAF7F0;
+    --ink: #0F0E0D;
+    --muted: #6B6760;
+    --card-bg: #FFFFFF;
+    --border: rgba(15,14,13,0.12);
+    --purple: #9747FF;
+    --orange: #FF6B35;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 2.5rem;
+    background: rgba(250,247,240,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.5rem;
+    letter-spacing: -0.04em; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none;
+  }
+  .nav-logo span {
+    background: var(--neon); color: var(--ink);
+    padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--ink); }
+  .nav-cta {
+    background: var(--ink); color: var(--cream);
+    padding: 0.55rem 1.4rem; border-radius: 100px;
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-cta:hover { background: var(--purple); transform: scale(1.03); }
+
+  /* ---- REVEAL ---- */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.3)} }
+
+  /* ---- PAGE HERO ---- */
+  .page-hero {
+    padding: 8rem 2rem 4rem;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .page-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 700px 400px at 15% 40%, rgba(151,71,255,0.18) 0%, transparent 65%),
+      radial-gradient(ellipse 500px 350px at 85% 60%, rgba(200,242,80,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 400px 300px at 55% 15%, rgba(255,107,186,0.12) 0%, transparent 55%);
+    z-index: 0;
+  }
+  .page-hero > * { position: relative; z-index: 1; }
+
+  .page-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.85); border: 1px solid var(--border);
+    padding: 0.4rem 1rem; border-radius: 100px;
+    font-size: 0.8rem; font-weight: 500; color: var(--muted);
+    margin-bottom: 1.8rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .page-badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--purple); box-shadow: 0 0 6px var(--purple);
+    animation: pulse 2s ease infinite;
+  }
+
+  .page-hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.92; letter-spacing: -0.04em;
+    margin-bottom: 1.4rem;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .page-hero h1 em {
+    font-style: normal;
+    -webkit-text-stroke: 2px var(--ink);
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .page-hero h1 .accent { color: var(--purple); -webkit-text-stroke: 0; -webkit-text-fill-color: var(--purple); }
+
+  .page-sub {
+    max-width: 500px; margin: 0 auto 2.5rem;
+    font-size: 1.05rem; color: var(--muted); line-height: 1.65;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.7s 0.3s ease both;
+    margin-bottom: 3.5rem;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--cream);
+    padding: 0.85rem 2.2rem; border-radius: 100px;
+    font-size: 1rem; font-weight: 500; text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary:hover { background: var(--purple); transform: translateY(-2px); }
+  .btn-secondary {
+    background: transparent; color: var(--ink);
+    padding: 0.85rem 2.2rem; border-radius: 100px;
+    border: 1.5px solid var(--border); font-size: 1rem;
+    font-weight: 500; text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-secondary:hover { border-color: var(--ink); transform: translateY(-2px); }
+
+  /* ---- STATS STRIP ---- */
+  .stats-strip {
+    display: flex; justify-content: center; gap: 3rem;
+    animation: fadeUp 0.7s 0.35s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem;
+    letter-spacing: -0.04em; line-height: 1;
+  }
+  .stat-num.purple { color: var(--purple); }
+  .stat-num.neon { color: #8faa2a; }
+  .stat-num.pink { color: #d44a97; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+
+  /* ---- SECTION COMMONS ---- */
+  section { padding: 5rem 2rem; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .section-label::before { content: ''; width: 20px; height: 2px; background: var(--purple); }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.0; letter-spacing: -0.03em;
+    margin-bottom: 1.2rem;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+
+  /* ===========================
+     MAIN CALENDAR SECTION
+     =========================== */
+  .calendar-main {
+    background: var(--cream);
+    padding: 4rem 2rem 6rem;
+  }
+
+  .calendar-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* ---- SIDEBAR (Wardrobe picks) ---- */
+  .sidebar {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    position: sticky; top: 90px;
+  }
+  .sidebar-header {
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sidebar-header h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+  }
+  .sidebar-count {
+    background: var(--neon); color: var(--ink);
+    font-size: 0.7rem; font-weight: 700;
+    padding: 2px 9px; border-radius: 100px;
+  }
+  .sidebar-search {
+    padding: 1rem 1.4rem;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .sidebar-search input {
+    width: 100%;
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .sidebar-search input:focus { border-color: var(--purple); }
+  .filter-tabs {
+    display: flex; gap: 6px;
+    padding: 0.75rem 1.4rem;
+    border-bottom: 1.5px solid var(--border);
+    overflow-x: auto;
+  }
+  .filter-tab {
+    white-space: nowrap;
+    font-size: 0.72rem; font-weight: 700;
+    padding: 4px 12px; border-radius: 100px;
+    border: 1.5px solid var(--border);
+    cursor: pointer; background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s; letter-spacing: 0.03em;
+  }
+  .filter-tab.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .filter-tab:hover:not(.active) { border-color: var(--purple); color: var(--purple); }
+
+  .looks-grid {
+    padding: 1rem 1.4rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    max-height: 520px; overflow-y: auto;
+  }
+  .looks-grid::-webkit-scrollbar { width: 4px; }
+  .looks-grid::-webkit-scrollbar-track { background: transparent; }
+  .looks-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .look-thumb {
+    border-radius: 14px;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    aspect-ratio: 3/4;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+    cursor: grab;
+    transition: all 0.2s;
+    position: relative; overflow: hidden;
+    user-select: none;
+  }
+  .look-thumb:hover { border-color: var(--purple); transform: scale(1.03); box-shadow: 0 8px 24px rgba(151,71,255,0.15); }
+  .look-thumb:active { cursor: grabbing; transform: scale(0.97); }
+  .look-thumb .emoji-stack { font-size: 1.5rem; text-align: center; line-height: 1.2; }
+  .look-thumb .look-name { font-size: 0.6rem; font-weight: 700; font-family: 'Syne', sans-serif; text-align: center; padding: 0 4px; }
+  .look-thumb .look-style {
+    position: absolute; top: 6px; right: 6px;
+    font-size: 0.55rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 6px;
+    background: var(--ink); color: var(--cream);
+  }
+  .look-thumb .drag-hint {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(151,71,255,0.9));
+    color: white; font-size: 0.58rem; font-weight: 700;
+    text-align: center; padding: 10px 6px 6px;
+    opacity: 0; transition: opacity 0.2s;
+    letter-spacing: 0.06em;
+  }
+  .look-thumb:hover .drag-hint { opacity: 1; }
+
+  .look-c1 { background: linear-gradient(135deg, #E8D5FF 0%, #F5EDFF 100%); }
+  .look-c2 { background: linear-gradient(135deg, #D5F0FF 0%, #EBF8FF 100%); }
+  .look-c3 { background: linear-gradient(135deg, #FFE5D5 0%, #FFF3EC 100%); }
+  .look-c4 { background: linear-gradient(135deg, rgba(200,242,80,0.4) 0%, rgba(200,242,80,0.15) 100%); }
+  .look-c5 { background: linear-gradient(135deg, #FFD6EC 0%, #FFF0F8 100%); }
+  .look-c6 { background: linear-gradient(135deg, #FFECD5 0%, #FFF7EC 100%); }
+
+  /* ---- CALENDAR ---- */
+  .calendar-wrapper {
+    display: flex; flex-direction: column; gap: 1.5rem;
+  }
+
+  .calendar-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 18px; padding: 1rem 1.4rem;
+  }
+  .cal-nav { display: flex; align-items: center; gap: 1rem; }
+  .cal-nav-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: transparent;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; transition: all 0.2s;
+  }
+  .cal-nav-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .cal-month {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.15rem;
+    letter-spacing: -0.03em;
+  }
+  .cal-view-btns { display: flex; gap: 4px; }
+  .view-btn {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+    padding: 0.4rem 1rem; border-radius: 100px;
+    border: 1.5px solid var(--border); background: transparent;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .view-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+  /* Week grid */
+  .week-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
+  }
+  .day-col {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .day-header {
+    text-align: center;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 0.7rem 0.5rem;
+  }
+  .day-name {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .day-number {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem;
+    letter-spacing: -0.04em; line-height: 1.1;
+  }
+  .day-col.today .day-header {
+    background: var(--ink); color: var(--cream); border-color: var(--ink);
+  }
+  .day-col.today .day-name { color: rgba(250,247,240,0.55); }
+
+  .day-slot {
+    border-radius: 14px; border: 1.5px dashed var(--border);
+    min-height: 160px; padding: 10px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: all 0.2s; position: relative;
+    cursor: pointer;
+  }
+  .day-slot:hover { border-color: var(--purple); background: rgba(151,71,255,0.03); }
+  .day-slot.has-look {
+    border-style: solid; border-color: transparent;
+    background: var(--card-bg);
+    box-shadow: 0 4px 20px rgba(15,14,13,0.08);
+  }
+  .day-slot.drag-over {
+    border-color: var(--purple); border-style: solid;
+    background: rgba(151,71,255,0.06);
+    box-shadow: 0 0 0 3px rgba(151,71,255,0.15);
+  }
+  .slot-empty-msg {
+    position: absolute; inset: 0; display: flex;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 5px; text-align: center;
+  }
+  .slot-empty-icon { font-size: 1.4rem; opacity: 0.3; }
+  .slot-empty-text { font-size: 0.62rem; color: var(--muted); font-weight: 500; line-height: 1.4; }
+
+  /* look card inside slot */
+  .slot-look {
+    border-radius: 10px; padding: 8px;
+    position: relative; flex: 1;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .slot-look .look-emojis { font-size: 1.8rem; text-align: center; }
+  .slot-look .look-title { font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 700; }
+  .slot-look .look-meta { font-size: 0.6rem; color: var(--muted); }
+  .slot-look .remove-btn {
+    position: absolute; top: 4px; right: 4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(15,14,13,0.1); border: none;
+    cursor: pointer; font-size: 0.6rem; display: flex;
+    align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .slot-look:hover .remove-btn { opacity: 1; }
+
+  /* XP & cost info */
+  .slot-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .slot-tag {
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.04em;
+    padding: 2px 7px; border-radius: 6px;
+  }
+  .tag-weather { background: rgba(200,242,80,0.25); color: #5a7300; }
+  .tag-occasion { background: rgba(151,71,255,0.15); color: var(--purple); }
+  .tag-cost { background: rgba(255,107,53,0.15); color: var(--orange); }
+
+  /* ---- WEEK SUMMARY CARD ---- */
+  .week-summary {
+    background: var(--ink); color: var(--cream);
+    border-radius: 20px; padding: 1.8rem 2rem;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    position: relative; overflow: hidden;
+  }
+  .week-summary::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,242,80,0.15) 0%, transparent 70%);
+  }
+  .summary-item { position: relative; z-index: 1; }
+  .summary-label {
+    font-size: 0.7rem; color: rgba(250,247,240,0.45);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    font-weight: 700; margin-bottom: 0.4rem;
+  }
+  .summary-value {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 1.7rem; letter-spacing: -0.04em; line-height: 1;
+  }
+  .summary-value.neon { color: var(--neon); }
+  .summary-value.pink { color: var(--pink); }
+  .summary-value.cream { color: var(--cream); }
+  .summary-sub { font-size: 0.72rem; color: rgba(250,247,240,0.45); margin-top: 3px; }
+  .xp-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(200,242,80,0.15); border: 1px solid rgba(200,242,80,0.3);
+    color: var(--neon); padding: 0.4rem 1rem; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 700; margin-top: 0.6rem;
+    letter-spacing: 0.03em;
+  }
+  .xp-pill span { font-size: 0.7rem; opacity: 0.7; font-weight: 400; }
+
+  /* ===========================
+     COST PER USE SECTION
+     =========================== */
+  .cost-section { background: #F5F2EB; }
+  .cost-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .cost-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 1.8rem;
+    transition: all 0.25s;
+  }
+  .cost-card:hover { box-shadow: 0 12px 40px rgba(15,14,13,0.08); transform: translateY(-2px); }
+  .cost-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+  .cost-piece {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .piece-emoji {
+    width: 46px; height: 46px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .piece-info h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; }
+  .piece-info p { font-size: 0.78rem; color: var(--muted); }
+  .cost-badge {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+    letter-spacing: -0.03em;
+  }
+  .cost-badge.cheap { color: #27ae60; }
+  .cost-badge.mid { color: var(--orange); }
+  .cost-badge.exp { color: #e74c3c; }
+
+  .cost-bar-wrap { margin-bottom: 1rem; }
+  .cost-bar-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.75rem; color: var(--muted); margin-bottom: 5px;
+  }
+  .cost-bar-bg {
+    height: 6px; border-radius: 3px; background: var(--border);
+    overflow: hidden;
+  }
+  .cost-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .fill-green { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .fill-orange { background: linear-gradient(90deg, var(--orange), #ffaa7f); }
+  .fill-purple { background: linear-gradient(90deg, var(--purple), #c48aff); }
+  .fill-pink { background: linear-gradient(90deg, var(--pink), #ff9dd6); }
+
+  .cost-uses {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .use-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--purple);
+  }
+  .use-dot.used { background: var(--neon); box-shadow: 0 0 4px rgba(200,242,80,0.5); }
+
+  .cost-insight {
+    background: var(--cream); border-radius: 10px;
+    padding: 0.7rem 1rem; margin-top: 1rem;
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5;
+  }
+  .cost-insight strong { color: var(--ink); }
+
+  /* ---- MONTHLY OVERVIEW ---- */
+  .monthly-section { background: var(--ink); color: var(--cream); }
+  .monthly-section .section-label { color: rgba(250,247,240,0.4); }
+  .monthly-section .section-label::before { background: var(--neon); }
+  .monthly-section .section-title { color: var(--cream); }
+  .monthly-section p { color: rgba(250,247,240,0.55); }
+
+  .month-cal {
+    margin-top: 3rem;
+    background: rgba(250,247,240,0.04);
+    border: 1.5px solid rgba(250,247,240,0.08);
+    border-radius: 20px; overflow: hidden;
+  }
+  .month-cal-header {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1.5px solid rgba(250,247,240,0.08);
+  }
+  .month-cal-header div {
+    text-align: center; padding: 0.8rem 0.3rem;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(250,247,240,0.35);
+  }
+  .month-cal-body {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+  }
+  .month-day {
+    border: 0.5px solid rgba(250,247,240,0.05);
+    min-height: 80px; padding: 8px;
+    position: relative;
+    transition: background 0.2s; cursor: pointer;
+  }
+  .month-day:hover { background: rgba(250,247,240,0.04); }
+  .month-day.other-month { opacity: 0.25; }
+  .month-day.today { background: rgba(200,242,80,0.08); }
+  .month-day.today::after {
+    content: ''; position: absolute; top: 6px; right: 6px;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--neon);
+  }
+  .month-day-num {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.85rem; color: rgba(250,247,240,0.5);
+    margin-bottom: 4px;
+  }
+  .month-day.today .month-day-num { color: var(--neon); }
+  .month-look-dot {
+    display: flex; gap: 3px; flex-wrap: wrap;
+  }
+  .look-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .month-look-mini {
+    font-size: 0.9rem; line-height: 1;
+  }
+
+  /* ---- AI SUGGESTIONS STRIP ---- */
+  .ai-strip { background: var(--cream); }
+  .ai-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .ai-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 1.6rem;
+    transition: all 0.25s;
+    position: relative; overflow: hidden;
+  }
+  .ai-card::before {
+    content: '';
+    position: absolute; top: -30px; right: -30px;
+    width: 100px; height: 100px; border-radius: 50%;
+    opacity: 0.08;
+  }
+  .ai-card.ai-1::before { background: var(--purple); }
+  .ai-card.ai-2::before { background: var(--pink); }
+  .ai-card.ai-3::before { background: var(--neon); }
+  .ai-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(15,14,13,0.1); }
+  .ai-card-top {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem;
+  }
+  .ai-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  }
+  .ai-icon.purple { background: rgba(151,71,255,0.15); }
+  .ai-icon.pink { background: rgba(255,107,186,0.15); }
+  .ai-icon.neon { background: rgba(200,242,80,0.2); }
+  .ai-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+  .ai-card p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.2rem; }
+  .ai-chip {
+    display: inline-block;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+    padding: 4px 12px; border-radius: 100px;
+  }
+  .chip-purple { background: rgba(151,71,255,0.1); color: var(--purple); }
+  .chip-pink { background: rgba(255,107,186,0.1); color: var(--pink); }
+  .chip-neon { background: rgba(200,242,80,0.2); color: #5a7300; }
+
+  /* ---- GAMIFICATION STRIP ---- */
+  .xp-section {
+    background: var(--cream);
+    border-top: 1.5px solid var(--border);
+  }
+  .xp-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .xp-bar-wrapper { margin-top: 1.2rem; }
+  .xp-bar-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; font-weight: 500; margin-bottom: 8px;
+  }
+  .xp-bar-label span:last-child { color: var(--purple); font-weight: 700; }
+  .xp-bar-bg { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+  .xp-bar-fill {
+    height: 100%; border-radius: 5px;
+    background: linear-gradient(90deg, var(--purple), var(--pink));
+    width: 62%;
+    transition: width 1.2s ease;
+    position: relative; overflow: hidden;
+  }
+  .xp-bar-fill::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s ease infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+  .xp-note { font-size: 0.8rem; color: var(--muted); margin-top: 0.7rem; }
+
+  .xp-actions { display: flex; flex-direction: column; gap: 10px; }
+  .xp-action-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 0.9rem 1.2rem;
+    transition: all 0.2s;
+  }
+  .xp-action-item:hover { border-color: var(--purple); transform: translateX(4px); }
+  .xpa-left { display: flex; align-items: center; gap: 10px; }
+  .xpa-icon { font-size: 1.2rem; }
+  .xpa-text h5 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; }
+  .xpa-text p { font-size: 0.75rem; color: var(--muted); }
+  .xpa-xp {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem;
+    color: var(--purple); letter-spacing: -0.02em;
+  }
+
+  /* ---- CTA ---- */
+  .cal-cta {
+    background: var(--ink); color: var(--cream);
+    text-align: center; padding: 6rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .cal-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 50%, rgba(151,71,255,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 500px 350px at 80% 50%, rgba(200,242,80,0.12) 0%, transparent 60%);
+  }
+  .cal-cta > * { position: relative; z-index: 1; }
+  .cal-cta .section-title { color: var(--cream); margin-bottom: 0.8rem; }
+  .cal-cta p { color: rgba(250,247,240,0.55); margin-bottom: 2rem; }
+  .cta-tag {
+    display: inline-block;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    background: rgba(200,242,80,0.15); color: var(--neon);
+    border: 1px solid rgba(200,242,80,0.3);
+    padding: 0.35rem 1rem; border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+  .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-neon {
+    background: var(--neon); color: var(--ink);
+    padding: 0.85rem 2.2rem; border-radius: 100px;
+    font-size: 1rem; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-neon:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(200,242,80,0.35); }
+  .btn-ghost {
+    background: transparent; color: rgba(250,247,240,0.7);
+    padding: 0.85rem 2.2rem; border-radius: 100px;
+    border: 1.5px solid rgba(250,247,240,0.2); font-size: 1rem;
+    font-weight: 500; text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .btn-ghost:hover { border-color: rgba(250,247,240,0.5); color: var(--cream); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--ink); color: var(--cream);
+    padding: 2.5rem; border-top: 1px solid rgba(250,247,240,0.08);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; letter-spacing: -0.04em; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(250,247,240,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--cream); }
+  .footer-right { font-size: 0.8rem; color: rgba(250,247,240,0.35); }
+
+  /* ---- WEATHER WIDGET ---- */
+  .weather-widget {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(200,242,80,0.12); border: 1px solid rgba(200,242,80,0.3);
+    border-radius: 100px; padding: 0.3rem 0.9rem;
+    font-size: 0.78rem; font-weight: 600; color: #5a7300;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="guarda-roupa-virtual.html" class="nav-logo">KLOSET <span>BETA</span></a>
+  <ul class="nav-links">
+    <li><a href="kloset-armario.html">Armário</a></li>
+    <li><a href="#" class="active">Calendário</a></li>
+    <li><a href="kloset-wishlist.html">Wishlist</a></li>
+  </ul>
+  <a href="#" class="nav-cta">Upgrade Premium ✦</a>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="page-badge">
+    <span class="dot"></span>
+    Planejador Semanal · Calendário de Looks
+  </div>
+  <h1>
+    Sua semana toda<br>
+    <em>planejada</em> em<br>
+    <span class="accent">5 minutos</span>
+  </h1>
+  <p class="page-sub">Arraste os looks do seu avatar para cada dia. A IA monitora o clima, calcula o custo por uso e te dá XP por manter o planejamento em dia.</p>
+  <div class="hero-actions">
+    <button class="btn-primary">📅 Planejar semana</button>
+    <button class="btn-secondary">✨ Sugestão da IA</button>
+  </div>
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-num purple">7</div>
+      <div class="stat-label">looks planejados</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num neon">R$4,20</div>
+      <div class="stat-label">custo médio/uso</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num pink">+340 XP</div>
+      <div class="stat-label">ganhos essa semana</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CALENDAR SECTION -->
+<section class="calendar-main" id="calendario">
+  <div class="container">
+
+    <div class="calendar-layout reveal">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h3>Meus Looks</h3>
+          <span class="sidebar-count">12 looks</span>
+        </div>
+        <div class="sidebar-search">
+          <input type="text" placeholder="🔍  Buscar look...">
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active">Todos</button>
+          <button class="filter-tab">Casual</button>
+          <button class="filter-tab">Escola</button>
+          <button class="filter-tab">Festa</button>
+          <button class="filter-tab">Work</button>
+        </div>
+        <div class="looks-grid" id="looks-library">
+          <div class="look-thumb look-c1" draggable="true" data-look="0">
+            <span class="look-style">Y2K</span>
+            <div class="emoji-stack">👗<br>👟</div>
+            <div class="look-name">Lilás Y2K</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+          <div class="look-thumb look-c4" draggable="true" data-look="1">
+            <span class="look-style">CLEAN</span>
+            <div class="emoji-stack">🟡<br>👖</div>
+            <div class="look-name">Neon Casual</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+          <div class="look-thumb look-c3" draggable="true" data-look="2">
+            <span class="look-style">STREET</span>
+            <div class="emoji-stack">🧥<br>👟</div>
+            <div class="look-name">Street Laranja</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+          <div class="look-thumb look-c5" draggable="true" data-look="3">
+            <span class="look-style">COTTAGE</span>
+            <div class="emoji-stack">🌸<br>👡</div>
+            <div class="look-name">Rosa Romântico</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+          <div class="look-thumb look-c2" draggable="true" data-look="4">
+            <span class="look-style">MINIMAL</span>
+            <div class="emoji-stack">🔵<br>👖</div>
+            <div class="look-name">Blue Minimal</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+          <div class="look-thumb look-c6" draggable="true" data-look="5">
+            <span class="look-style">WORK</span>
+            <div class="emoji-stack">🟤<br>💼</div>
+            <div class="look-name">Office Nude</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+          <div class="look-thumb look-c1" draggable="true" data-look="6">
+            <span class="look-style">FESTA</span>
+            <div class="emoji-stack">✨<br>👠</div>
+            <div class="look-name">Glam Night</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+          <div class="look-thumb look-c4" draggable="true" data-look="7">
+            <span class="look-style">GYM</span>
+            <div class="emoji-stack">🏃<br>👟</div>
+            <div class="look-name">Gym Aesthetic</div>
+            <div class="drag-hint">↕ ARRASTE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR RIGHT SIDE -->
+      <div class="calendar-wrapper">
+
+        <!-- TOP BAR -->
+        <div class="calendar-topbar">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="prev-week">←</button>
+            <span class="cal-month" id="cal-title">Junho 2025</span>
+            <button class="cal-nav-btn" id="next-week">→</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="weather-widget">🌤 23°C · São Paulo</div>
+            <div class="cal-view-btns">
+              <button class="view-btn active">Semana</button>
+              <button class="view-btn">Mês</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEEK GRID -->
+        <div class="week-grid" id="week-grid"></div>
+
+        <!-- WEEK SUMMARY -->
+        <div class="week-summary reveal">
+          <div class="summary-item">
+            <div class="summary-label">Looks Planejados</div>
+            <div class="summary-value neon" id="planned-count">5/7</div>
+            <div class="summary-sub">faltam 2 dias</div>
+            <div class="xp-pill">⚡ <span>+50 XP</span> ao completar</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Custo Total Semana</div>
+            <div class="summary-value cream">R$ 29,40</div>
+            <div class="summary-sub">média R$4,20/look</div>
+            <div class="xp-pill">♻️ <span>moda consciente</span></div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">XP Ganho</div>
+            <div class="summary-value pink">+340 XP</div>
+            <div class="summary-sub">Nível 4 — Fashion Insider</div>
+            <div class="xp-pill">🔥 <span>streak 5 dias!</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CUSTO POR USO -->
+<section class="cost-section" id="custo">
+  <div class="container">
+    <div class="reveal" style="text-align:center; margin-bottom:0.5rem;">
+      <div class="section-label" style="justify-content:center;">Consumo Consciente</div>
+      <h2 class="section-title">Quanto você gasta<br><span style="color:var(--purple);">por vestida?</span></h2>
+      <p style="color:var(--muted); max-width:480px; margin:0 auto;">Cada look registrado no calendário atualiza automaticamente o custo por uso. Moda que faz sentido financeiro.</p>
+    </div>
+
+    <div class="cost-grid reveal">
+      <div class="cost-card">
+        <div class="cost-card-header">
+          <div class="cost-piece">
+            <div class="piece-emoji look-c1" style="border-radius:12px;">👗</div>
+            <div class="piece-info">
+              <h4>Vestido Lilás Y2K</h4>
+              <p>Comprado em Março · R$89</p>
+            </div>
+          </div>
+          <div class="cost-badge cheap">R$7,42/uso</div>
+        </div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar-label"><span>12 usos registrados</span><span style="color:#27ae60;">↓ diminuindo</span></div>
+          <div class="cost-bar-bg"><div class="cost-bar-fill fill-green" style="width:85%"></div></div>
+        </div>
+        <div class="cost-uses" style="margin-bottom:10px;">
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div>
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div>
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div>
+        </div>
+        <div class="cost-insight">🏆 <strong>Peça campeã!</strong> Uma das mais usadas do armário. Custo por uso abaixo de R$10.</div>
+      </div>
+
+      <div class="cost-card">
+        <div class="cost-card-header">
+          <div class="cost-piece">
+            <div class="piece-emoji look-c3" style="border-radius:12px;">🧥</div>
+            <div class="piece-info">
+              <h4>Jaqueta Streetwear</h4>
+              <p>Comprada em Janeiro · R$240</p>
+            </div>
+          </div>
+          <div class="cost-badge mid">R$30/uso</div>
+        </div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar-label"><span>8 usos registrados</span><span style="color:var(--orange);">→ em progresso</span></div>
+          <div class="cost-bar-bg"><div class="cost-bar-fill fill-orange" style="width:45%"></div></div>
+        </div>
+        <div class="cost-uses" style="margin-bottom:10px;">
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div>
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot"></div><div class="use-dot"></div>
+          <div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div>
+        </div>
+        <div class="cost-insight">💡 Use <strong>+5 vezes</strong> para baixar para R$18/uso. Planejamos ela para quarta e sexta!</div>
+      </div>
+
+      <div class="cost-card">
+        <div class="cost-card-header">
+          <div class="cost-piece">
+            <div class="piece-emoji look-c5" style="border-radius:12px;">💗</div>
+            <div class="piece-info">
+              <h4>Conjunto Rosa Romântico</h4>
+              <p>Comprado em Abril · R$150</p>
+            </div>
+          </div>
+          <div class="cost-badge exp">R$50/uso</div>
+        </div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar-label"><span>3 usos registrados</span><span style="color:#e74c3c;">↑ alto ainda</span></div>
+          <div class="cost-bar-bg"><div class="cost-bar-fill fill-purple" style="width:18%"></div></div>
+        </div>
+        <div class="cost-uses" style="margin-bottom:10px;">
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot"></div><div class="use-dot"></div>
+          <div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div>
+          <div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div><div class="use-dot"></div>
+        </div>
+        <div class="cost-insight">⚠️ Peça pouco usada. Que tal a função <strong>Desencalhar Peça</strong> para criar looks com ela?</div>
+      </div>
+
+      <div class="cost-card">
+        <div class="cost-card-header">
+          <div class="cost-piece">
+            <div class="piece-emoji look-c4" style="border-radius:12px;">🟡</div>
+            <div class="piece-info">
+              <h4>Cropped Neon + Cargo</h4>
+              <p>Comprado em Fevereiro · R$110</p>
+            </div>
+          </div>
+          <div class="cost-badge cheap">R$6,47/uso</div>
+        </div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar-label"><span>17 usos registrados</span><span style="color:#27ae60;">✓ excelente</span></div>
+          <div class="cost-bar-bg"><div class="cost-bar-fill fill-green" style="width:95%"></div></div>
+        </div>
+        <div class="cost-uses" style="margin-bottom:10px;">
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div>
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div>
+          <div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div><div class="use-dot used"></div>
+        </div>
+        <div class="cost-insight">🌟 <strong>ROI positivo!</strong> Abaixo de R$10/uso. Essa peça se pagou muito antes do que você imagina.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MONTHLY OVERVIEW -->
+<section class="monthly-section" id="mes">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-label" style="justify-content:center;">Visão do Mês</div>
+      <h2 class="section-title">Junho 2025</h2>
+      <p>Looks planejados aparecem coloridos. Clique num dia para ver ou editar o look.</p>
+    </div>
+    <div class="month-cal reveal">
+      <div class="month-cal-header">
+        <div>DOM</div><div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div>SÁB</div>
+      </div>
+      <div class="month-cal-body" id="month-grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SUGESTÕES -->
+<section class="ai-strip" id="ia">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-label" style="justify-content:center;">Inteligência Artificial</div>
+      <h2 class="section-title">A IA cuida do que<br><span style="color:var(--purple);">você esqueceu</span></h2>
+      <p style="color:var(--muted); max-width:480px; margin:0 auto;">Enquanto você curte ou passa em looks, o algoritmo está trabalhando para deixar sua semana imbatível.</p>
+    </div>
+    <div class="ai-cards reveal">
+      <div class="ai-card ai-1">
+        <div class="ai-card-top">
+          <div class="ai-icon purple">🌦️</div>
+          <h4>Alerta de Clima</h4>
+        </div>
+        <p>Quinta-feira vai chover. A IA já trocou seu look de mini saia por um conjunto confortável com capa de chuva do seu armário.</p>
+        <span class="ai-chip chip-purple">ADAPTADO AUTOMATICAMENTE</span>
+      </div>
+      <div class="ai-card ai-2">
+        <div class="ai-card-top">
+          <div class="ai-icon pink">♻️</div>
+          <h4>Desencalhar Peça</h4>
+        </div>
+        <p>Sua jaqueta rosa está parada há 47 dias. A IA criou 3 looks para esta semana usando ela com peças que você já tem.</p>
+        <span class="ai-chip chip-pink">3 COMBINAÇÕES PRONTAS</span>
+      </div>
+      <div class="ai-card ai-3">
+        <div class="ai-card-top">
+          <div class="ai-icon neon">📊</div>
+          <h4>Insight de Consumo</h4>
+        </div>
+        <p>Você gastou R$320 em roupas este mês, mas o custo real por uso caiu 14% desde que começou a planejar aqui. Parabéns!</p>
+        <span class="ai-chip chip-neon">-14% CUSTO POR USO</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- XP / GAMIFICAÇÃO -->
+<section class="xp-section" id="xp">
+  <div class="container">
+    <div class="xp-layout reveal">
+      <div>
+        <div class="section-label">Gamificação</div>
+        <h2 class="section-title">Planejou?<br><span style="color:var(--purple);">Ganhou XP.</span></h2>
+        <p style="color:var(--muted); line-height:1.7; margin-bottom:1.5rem;">Cada look registrado no calendário conta pontos. Mantenha a sequência e desbloqueie cenários exclusivos pro seu avatar.</p>
+        <div class="xp-bar-wrapper">
+          <div class="xp-bar-label"><span>Nível 4 — Fashion Insider</span><span>620 / 1000 XP</span></div>
+          <div class="xp-bar-bg"><div class="xp-bar-fill"></div></div>
+        </div>
+        <p class="xp-note">Mais 380 XP para Nível 5 — Style Guru ✨</p>
+      </div>
+      <div class="xp-actions">
+        <div class="xpa-left" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+
+          <div class="xp-action-item">
+            <div class="xpa-left">
+              <span class="xpa-icon">📅</span>
+              <div class="xpa-text">
+                <h5>Planejar 7 dias seguidos</h5>
+                <p>Complete a semana toda no calendário</p>
+              </div>
+            </div>
+            <span class="xpa-xp">+100 XP</span>
+          </div>
+
+          <div class="xp-action-item">
+            <div class="xpa-left">
+              <span class="xpa-icon">✅</span>
+              <div class="xpa-text">
+                <h5>Registrar look do dia</h5>
+                <p>Confirme que usou o look planejado</p>
+              </div>
+            </div>
+            <span class="xpa-xp">+20 XP</span>
+          </div>
+
+          <div class="xp-action-item">
+            <div class="xpa-left">
+              <span class="xpa-icon">♻️</span>
+              <div class="xpa-text">
+                <h5>Desencalhar uma peça</h5>
+                <p>Use uma roupa que estava parada</p>
+              </div>
+            </div>
+            <span class="xpa-xp">+50 XP</span>
+          </div>
+
+          <div class="xp-action-item">
+            <div class="xpa-left">
+              <span class="xpa-icon">🔥</span>
+              <div class="xpa-text">
+                <h5>Streak de 7 dias</h5>
+                <p>Use looks planejados 7 dias seguidos</p>
+              </div>
+            </div>
+            <span class="xpa-xp">+200 XP</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cal-cta">
+  <div class="cta-tag">📅 PLANEJADOR SEMANAL</div>
+  <h2 class="section-title">Monte sua semana<br>agora mesmo</h2>
+  <p>Arraste os looks, deixa a IA cuidar do clima e acumule XP enquanto você se veste bem.</p>
+  <div class="cta-btns">
+    <a href="#calendario" class="btn-neon">📅 Começar a planejar</a>
+    <a href="#" class="btn-ghost">Ver planos Premium →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">KLOSET</div>
+  <div class="footer-links">
+    <a href="#">Sobre</a>
+    <a href="#">Privacidade</a>
+    <a href="#">Termos</a>
+    <a href="#">Contato</a>
+    <a href="#">Instagram</a>
+    <a href="#">TikTok</a>
+  </div>
+  <div class="footer-right">© 2025 KLOSET — Guarda-Roupa Virtual</div>
+</footer>
+
+<script>
+/* ===== DATA ===== */
+const lookData = [
+  { name:"Lilás Y2K",     emojis:"👗\n👟", style:"Y2K",     color:"#E8D5FF", tags:["casual","escola"], cost:"R$7,42" },
+  { name:"Neon Casual",   emojis:"🟡\n👖", style:"CLEAN",   color:"#e9f5b0", tags:["casual"],          cost:"R$6,47" },
+  { name:"Street Laranja",emojis:"🧥\n👟", style:"STREET",  color:"#FFE5D5", tags:["casual"],          cost:"R$30"   },
+  { name:"Rosa Romântico",emojis:"🌸\n👡", style:"COTTAGE", color:"#FFD6EC", tags:["festa","casual"],  cost:"R$50"   },
+  { name:"Blue Minimal",  emojis:"🔵\n👖", style:"MINIMAL", color:"#D5F0FF", tags:["trabalho"],        cost:"R$12"   },
+  { name:"Office Nude",   emojis:"🟤\n💼", style:"WORK",    color:"#FFECD5", tags:["trabalho"],        cost:"R$14"   },
+  { name:"Glam Night",    emojis:"✨\n👠", style:"FESTA",   color:"#E8D5FF", tags:["festa"],           cost:"R$18"   },
+  { name:"Gym Aesthetic", emojis:"🏃\n👟", style:"GYM",     color:"#e9f5b0", tags:["casual"],          cost:"R$5"    },
+];
+
+/* ===== WEEK STATE ===== */
+const days = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+let weekOffset = 0;
+let weekLooks = { 0:1, 1:0, 2:3, 3:null, 4:2, 5:null, 6:4 }; // day index → look index
+
+function getWeekDates(offset) {
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - now.getDay() + offset * 7);
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function isToday(date) {
+  const t = new Date();
+  return date.getDate() === t.getDate() && date.getMonth() === t.getMonth() && date.getFullYear() === t.getFullYear();
+}
+
+function renderWeekGrid() {
+  const grid = document.getElementById('week-grid');
+  const dates = getWeekDates(weekOffset);
+  const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const d0 = dates[0], d6 = dates[6];
+  const title = d0.getMonth() === d6.getMonth()
+    ? `${months[d0.getMonth()]} ${d0.getFullYear()}`
+    : `${months[d0.getMonth()]} — ${months[d6.getMonth()]} ${d6.getFullYear()}`;
+  document.getElementById('cal-title').textContent = title;
+
+  grid.innerHTML = '';
+  dates.forEach((date, i) => {
+    const today = isToday(date);
+    const lookIdx = weekLooks[i];
+    const look = lookIdx !== null && lookIdx !== undefined ? lookData[lookIdx] : null;
+
+    const col = document.createElement('div');
+    col.className = 'day-col' + (today ? ' today' : '');
+    col.innerHTML = `
+      <div class="day-header">
+        <div class="day-name">${days[i]}</div>
+        <div class="day-number">${date.getDate()}</div>
+      </div>
+      <div class="day-slot${look ? ' has-look' : ''}" data-day="${i}" id="slot-${i}">
+        ${look ? `
+          <div class="slot-look" style="background:${look.color}20; border:1.5px solid ${look.color}60;">
+            <button class="remove-btn" onclick="removeLook(${i})">✕</button>
+            <div class="look-emojis">${look.emojis.replace('\n',' ')}</div>
+            <div class="look-title">${look.name}</div>
+            <div class="look-meta">${look.style}</div>
+          </div>
+          <div class="slot-tags">
+            <span class="slot-tag tag-weather">🌤 23°C</span>
+            <span class="slot-tag tag-occasion">${look.tags[0]}</span>
+            <span class="slot-tag tag-cost">${look.cost}/uso</span>
+          </div>
+        ` : `
+          <div class="slot-empty-msg">
+            <div class="slot-empty-icon">+</div>
+            <div class="slot-empty-text">Solte um look<br>aqui</div>
+          </div>
+        `}
+      </div>
+    `;
+    grid.appendChild(col);
+  });
+
+  // drag & drop on slots
+  document.querySelectorAll('.day-slot').forEach(slot => {
+    slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', e => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      const lookIdx = parseInt(e.dataTransfer.getData('lookIdx'));
+      const dayIdx = parseInt(slot.dataset.day);
+      weekLooks[dayIdx] = lookIdx;
+      renderWeekGrid();
+      updateSummary();
+    });
+  });
+
+  updateSummary();
+}
+
+function removeLook(dayIdx) {
+  weekLooks[dayIdx] = null;
+  renderWeekGrid();
+  updateSummary();
+}
+
+function updateSummary() {
+  const planned = Object.values(weekLooks).filter(v => v !== null && v !== undefined).length;
+  const el = document.getElementById('planned-count');
+  if (el) el.textContent = planned + '/7';
+}
+
+// Drag from sidebar
+document.querySelectorAll('.look-thumb').forEach(thumb => {
+  thumb.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('lookIdx', thumb.dataset.look);
+  });
+});
+
+document.getElementById('prev-week').addEventListener('click', () => { weekOffset--; renderWeekGrid(); });
+document.getElementById('next-week').addEventListener('click', () => { weekOffset++; renderWeekGrid(); });
+
+renderWeekGrid();
+
+/* ===== MONTHLY GRID ===== */
+function renderMonthGrid() {
+  const grid = document.getElementById('month-grid');
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevDays = new Date(year, month, 0).getDate();
+
+  const lookColors = ['#E8D5FF','#e9f5b0','#FFE5D5','#FFD6EC','#D5F0FF'];
+  const filled = [2,3,5,6,7,9,10,12,16,17,18,20,23,24];
+
+  let cells = [];
+  for (let i = firstDay - 1; i >= 0; i--) cells.push({ num: prevDays - i, other: true });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ num: d, other: false, isToday: d === today.getDate() });
+  while (cells.length % 7 !== 0) cells.push({ num: cells.length - daysInMonth - firstDay + 2, other: true });
+
+  grid.innerHTML = cells.map(c => {
+    const haslook = !c.other && filled.includes(c.num);
+    const color = haslook ? lookColors[c.num % lookColors.length] : '';
+    return `
+      <div class="month-day${c.other ? ' other-month' : ''}${c.isToday ? ' today' : ''}" style="${haslook ? 'background:'+color+'22;' : ''}">
+        <div class="month-day-num">${c.num}</div>
+        ${haslook ? `<div class="month-look-mini">${['👗','🧥','👖','🌸','🔵'][c.num % 5]}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+renderMonthGrid();
+
+/* ===== FILTER TABS ===== */
+document.querySelectorAll('.filter-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+/* ===== VIEW BTNS ===== */
+document.querySelectorAll('.view-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+/* ===== REVEAL ===== */
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      e.target.style.transitionDelay = (i * 0.07) + 's';
+      e.target.classList.add('visible');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

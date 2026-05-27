@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kloset — Wishlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --neon: #C8F250;
+  --pink: #FF6BBA;
+  --cream: #FAF7F0;
+  --ink: #0F0E0D;
+  --muted: #6B6760;
+  --border: rgba(15,14,13,0.10);
+  --purple: #9747FF;
+  --orange: #FF6B35;
+  --white: #FFFFFF;
+  --surface: #F4F1E8;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 2.5rem;
+  background: rgba(250,247,240,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.45rem;
+  letter-spacing: -0.04em; color: var(--ink);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo .badge {
+  background: var(--neon); color: var(--ink);
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+}
+.nav-center {
+  display: flex; gap: 4px;
+  background: var(--surface); border-radius: 100px; padding: 4px;
+}
+.nav-tab {
+  padding: 0.45rem 1.2rem; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 500;
+  color: var(--muted); text-decoration: none; transition: all 0.2s;
+}
+.nav-tab.active { background: var(--ink); color: var(--cream); }
+.nav-tab:hover:not(.active) { color: var(--ink); }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.btn-add {
+  background: var(--pink); color: white;
+  padding: 0.5rem 1.3rem; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 500;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+}
+.btn-add:hover { background: #e055a0; transform: translateY(-1px); }
+.avatar-mini {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #E8D5FF, #C8F250);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; cursor: pointer; border: 2px solid var(--border);
+}
+
+/* LAYOUT */
+.app-layout { display: flex; padding-top: 62px; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 0;
+  position: sticky; top: 62px;
+  height: calc(100vh - 62px);
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.sidebar-section { margin-bottom: 1.8rem; }
+.sidebar-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(107,103,96,0.6);
+  padding: 0 1.2rem; margin-bottom: 0.5rem;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.6rem 1.2rem; cursor: pointer;
+  transition: background 0.15s; color: var(--muted);
+  font-size: 0.875rem; font-weight: 500;
+  border: none; background: none; width: 100%;
+  text-align: left; font-family: 'DM Sans', sans-serif;
+}
+.sidebar-item:hover { background: var(--surface); color: var(--ink); }
+.sidebar-item.active { background: var(--surface); color: var(--ink); }
+.sidebar-item .s-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem; flex-shrink: 0;
+}
+.sidebar-item .s-count {
+  margin-left: auto; background: var(--surface);
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 100px; color: var(--muted);
+}
+.sidebar-item.active .s-count { background: rgba(255,107,186,0.12); color: var(--pink); }
+
+/* BUDGET BOX */
+.budget-box {
+  margin: 0 1.2rem 1.5rem;
+  background: linear-gradient(135deg, #1A1A1A, #2A2A2A);
+  border-radius: 14px; padding: 1.2rem; color: var(--cream);
+}
+.budget-box h4 {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 0.85rem; margin-bottom: 3px;
+  color: rgba(250,247,240,0.6);
+}
+.budget-box strong {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.6rem; letter-spacing: -0.04em; display: block;
+  margin-bottom: 8px;
+}
+.budget-progress { height: 6px; background: rgba(255,255,255,0.1); border-radius: 100px; overflow: hidden; }
+.budget-fill { height: 100%; width: 72%; background: var(--pink); border-radius: 100px; }
+.budget-sub { font-size: 0.68rem; color: rgba(250,247,240,0.4); margin-top: 5px; }
+
+/* COMPAT SCORE SIDEBAR */
+.compat-tip {
+  margin: 0 1.2rem;
+  background: rgba(151,71,255,0.07); border-radius: 12px;
+  border: 1px solid rgba(151,71,255,0.15); padding: 1rem;
+}
+.compat-tip h4 { font-size: 0.78rem; font-weight: 700; color: var(--purple); margin-bottom: 5px; }
+.compat-tip p { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+
+/* XP ROW */
+.xp-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.8rem 1.2rem; margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+.xp-info { flex: 1; }
+.xp-info small { font-size: 0.65rem; color: var(--muted); }
+.xp-info strong { font-size: 0.8rem; font-weight: 700; display: block; }
+.xp-bar { height: 5px; background: var(--surface); border-radius: 100px; margin-top: 4px; overflow: hidden; }
+.xp-fill { height: 100%; width: 62%; background: linear-gradient(to right, var(--purple), var(--neon)); border-radius: 100px; }
+.xp-badge { font-size: 1.3rem; }
+
+/* MAIN */
+.main-content { flex: 1; padding: 2rem 2.5rem; min-width: 0; }
+
+/* PAGE HEADER */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+.page-header-left h1 {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.6rem; letter-spacing: -0.03em;
+  display: flex; align-items: center; gap: 10px;
+}
+.page-header-left p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+.header-stats { display: flex; gap: 12px; }
+.hstat {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 0.8rem 1.2rem; text-align: center;
+}
+.hstat strong { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; letter-spacing: -0.03em; display: block; }
+.hstat span { font-size: 0.7rem; color: var(--muted); }
+
+/* ALERT BANNER */
+.alert-banner {
+  background: linear-gradient(135deg, #9747FF, #C870FF);
+  border-radius: 18px; padding: 1.4rem 1.8rem;
+  display: flex; align-items: center; gap: 1.2rem;
+  margin-bottom: 2rem; color: white; overflow: hidden; position: relative;
+}
+.alert-banner::after {
+  content: '🛒';
+  position: absolute; right: 1.5rem; top: 50%;
+  transform: translateY(-50%); font-size: 3rem; opacity: 0.15;
+}
+.alert-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: rgba(255,255,255,0.15); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+}
+.alert-text h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 3px; }
+.alert-text p { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+.alert-action {
+  margin-left: auto; background: white; color: var(--purple);
+  padding: 0.55rem 1.3rem; border-radius: 100px;
+  font-size: 0.82rem; font-weight: 700; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  transition: all 0.2s; z-index: 1;
+}
+.alert-action:hover { background: var(--neon); color: var(--ink); }
+
+/* FILTER TABS */
+.filter-tabs { display: flex; gap: 8px; margin-bottom: 1.8rem; flex-wrap: wrap; }
+.filter-tab {
+  padding: 0.45rem 1.1rem; border-radius: 100px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-size: 0.8rem; font-weight: 500; cursor: pointer;
+  transition: all 0.18s; color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+}
+.filter-tab:hover { border-color: var(--ink); color: var(--ink); }
+.filter-tab.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.tab-count {
+  background: rgba(255,255,255,0.2); color: inherit;
+  font-size: 0.68rem; font-weight: 700;
+  padding: 1px 6px; border-radius: 100px;
+}
+.filter-tab:not(.active) .tab-count { background: var(--surface); color: var(--muted); }
+
+/* WISHLIST GRID */
+.wl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+/* WISHLIST CARD */
+.wl-card {
+  background: var(--white); border-radius: 20px;
+  border: 1.5px solid var(--border); overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.4s ease both;
+  position: relative;
+}
+.wl-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.09); }
+
+.wl-card-img {
+  height: 200px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 4.5rem; position: relative;
+  overflow: hidden;
+}
+.wl-img-badge {
+  position: absolute; top: 10px; left: 10px;
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em;
+  padding: 4px 10px; border-radius: 100px; z-index: 2;
+}
+.badge-validated { background: rgba(200,242,80,0.9); color: #3a7000; }
+.badge-pending { background: rgba(255,255,255,0.9); color: var(--muted); border: 1px solid var(--border); }
+.badge-incompatible { background: rgba(255,107,53,0.9); color: white; }
+
+.compat-meter {
+  position: absolute; bottom: 10px; right: 10px;
+  width: 44px; height: 44px; z-index: 2;
+}
+.compat-meter svg { transform: rotate(-90deg); }
+.compat-score-text {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.75rem;
+}
+
+.wl-card-body { padding: 1rem 1.1rem; }
+.wl-source {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
+  display: flex; align-items: center; gap: 5px;
+}
+.wl-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+.wl-price-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.wl-price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; }
+.wl-price-old { font-size: 0.8rem; color: var(--muted); text-decoration: line-through; }
+.wl-price-off { background: rgba(200,242,80,0.2); color: #3a7000; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+
+/* COMPAT SECTION */
+.compat-section { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 8px; }
+.compat-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.compat-score-badge {
+  font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+}
+.cs-high { background: rgba(200,242,80,0.2); color: #3a7000; }
+.cs-mid { background: rgba(255,107,53,0.12); color: #c05020; }
+.cs-low { background: rgba(200,50,50,0.1); color: #900; }
+
+.combo-preview { display: flex; gap: 6px; margin-bottom: 10px; }
+.combo-item {
+  flex: 1; background: var(--surface); border-radius: 10px;
+  padding: 6px; text-align: center;
+}
+.combo-item-emoji { font-size: 1.3rem; }
+.combo-item-name { font-size: 0.58rem; color: var(--muted); margin-top: 2px; }
+.combo-plus {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: var(--muted); flex-shrink: 0;
+}
+
+.wl-card-footer { display: flex; gap: 8px; padding: 0 1.1rem 1rem; }
+.wf-btn {
+  flex: 1; padding: 0.6rem; border-radius: 100px;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'DM Sans', sans-serif; transition: all 0.18s;
+}
+.wf-btn:hover { border-color: var(--ink); background: var(--ink); color: var(--cream); }
+.wf-btn.primary { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.wf-btn.primary:hover { background: var(--purple); border-color: var(--purple); }
+.wf-btn.danger:hover { background: rgba(200,50,50,0.1); border-color: rgba(200,50,50,0.3); color: #900; }
+.wf-icon { width: 38px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+
+/* ADD CARD */
+.wl-add-card {
+  background: var(--white); border-radius: 20px;
+  border: 2px dashed rgba(255,107,186,0.35);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2.5rem 1.5rem;
+  cursor: pointer; transition: all 0.2s; min-height: 360px;
+}
+.wl-add-card:hover { border-color: var(--pink); background: rgba(255,107,186,0.02); }
+.add-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: rgba(255,107,186,0.1); color: var(--pink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; margin-bottom: 1rem;
+}
+.wl-add-card strong { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; display: block; }
+.wl-add-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; max-width: 180px; }
+
+/* MODAL */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,14,13,0.5); z-index: 300;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 24px;
+  padding: 2rem; width: 520px; max-width: 95vw;
+  position: relative; animation: popIn 0.25s ease;
+  max-height: 90vh; overflow-y: auto;
+}
+@keyframes popIn { from { opacity:0; transform:scale(0.92) translateY(20px); } to { opacity:1; transform:none; } }
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--surface); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--muted); transition: all 0.15s;
+}
+.modal-close:hover { background: var(--ink); color: var(--cream); }
+.modal h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; margin-bottom: 0.3rem; }
+.modal > p { font-size: 0.875rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+.modal-upload-area {
+  border: 2px dashed rgba(255,107,186,0.35);
+  border-radius: 16px; padding: 2rem;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; margin-bottom: 1.2rem;
+  background: rgba(255,107,186,0.02);
+}
+.modal-upload-area:hover { border-color: var(--pink); background: rgba(255,107,186,0.05); }
+.modal-upload-area .big-icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
+.modal-upload-area strong { display: block; font-size: 0.9rem; margin-bottom: 3px; }
+.modal-upload-area span { font-size: 0.78rem; color: var(--muted); }
+
+.modal-input {
+  width: 100%; padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border); border-radius: 12px;
+  font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color 0.2s; margin-bottom: 10px;
+  background: var(--cream);
+}
+.modal-input:focus { border-color: var(--pink); }
+
+.ai-analysis-box {
+  background: var(--surface); border-radius: 14px; padding: 1.2rem; margin-bottom: 1.2rem;
+}
+.ai-analysis-box h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.compat-big {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+}
+.compat-num {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.5rem;
+  letter-spacing: -0.05em; color: var(--ink);
+}
+.compat-num span { font-size: 1rem; color: var(--muted); font-weight: 400; }
+.compat-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.combos-mini { display: flex; gap: 8px; }
+.combo-mini-card {
+  flex: 1; background: white; border-radius: 10px; padding: 8px;
+  text-align: center; border: 1px solid var(--border);
+}
+.combo-mini-card .emojis { font-size: 1.2rem; margin-bottom: 3px; }
+.combo-mini-card small { font-size: 0.62rem; color: var(--muted); }
+
+.modal-submit {
+  width: 100%; padding: 0.9rem;
+  background: var(--pink); color: white;
+  border: none; border-radius: 100px;
+  font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+}
+.modal-submit:hover { background: #e055a0; }
+
+/* ANIMAÇÕES */
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+.wl-card:nth-child(1) { animation-delay: 0.05s; }
+.wl-card:nth-child(2) { animation-delay: 0.10s; }
+.wl-card:nth-child(3) { animation-delay: 0.15s; }
+.wl-card:nth-child(4) { animation-delay: 0.20s; }
+.wl-card:nth-child(5) { animation-delay: 0.25s; }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center; padding: 5rem 2rem; color: var(--muted);
+  display: none;
+}
+.empty-state .big-emoji { font-size: 3.5rem; margin-bottom: 1rem; }
+.empty-state h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--ink); margin-bottom: 0.5rem; }
+.empty-state p { font-size: 0.875rem; max-width: 300px; margin: 0 auto 1.5rem; line-height: 1.6; }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-content { padding: 1.2rem; }
+  .nav-center { display: none; }
+  .wl-grid { grid-template-columns: 1fr; }
+  .header-stats { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="guarda-roupa-virtual.html" class="nav-logo">Kloset <span class="badge">BETA</span></a>
+  <div class="nav-center">
+    <a href="kloset-armario.html" class="nav-tab"> Armário</a>
+    <a href="kloset-wishlist.html" class="nav-tab active"> Wishlist</a>
+    <a href="kloset-calendario_1 (1).html" class="nav-tab"> Calendário</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-add" onclick="openModal()">
+      ＋ Adicionar à wishlist
+    </button>
+    <div class="avatar-mini" title="Meu avatar">😊</div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Ver por status</div>
+      <button class="sidebar-item active" onclick="setFilter('todas', this)">
+        <span class="s-icon" style="background:#FFE8F5;">🛒</span>
+        Todas
+        <span class="s-count">8</span>
+      </button>
+      <button class="sidebar-item" onclick="setFilter('validadas', this)">
+        <span class="s-icon" style="background:#F5FFD5;">✅</span>
+        Validadas pela IA
+        <span class="s-count">4</span>
+      </button>
+      <button class="sidebar-item" onclick="setFilter('pendentes', this)">
+        <span class="s-icon" style="background:#FFF8E8;">⏳</span>
+        Aguardando análise
+        <span class="s-count">2</span>
+      </button>
+      <button class="sidebar-item" onclick="setFilter('incompativeis', this)">
+        <span class="s-icon" style="background:#FFE8E8;">⚠️</span>
+        Pouco versátil
+        <span class="s-count">2</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Por categoria</div>
+      <button class="sidebar-item" onclick="setFilter('roupas', this)">
+        <span class="s-icon" style="background:#F0E8FF;">👗</span>
+        Roupas
+        <span class="s-count">4</span>
+      </button>
+      <button class="sidebar-item" onclick="setFilter('calcados', this)">
+        <span class="s-icon" style="background:#E8F0FF;">👟</span>
+        Calçados
+        <span class="s-count">2</span>
+      </button>
+      <button class="sidebar-item" onclick="setFilter('acessorios', this)">
+        <span class="s-icon" style="background:#FFF0E8;">💍</span>
+        Acessórios
+        <span class="s-count">2</span>
+      </button>
+    </div>
+
+    <div style="padding: 0 1.2rem 1.5rem;">
+      <div class="budget-box">
+        <h4>Orçamento mensal</h4>
+        <strong>R$340</strong>
+        <div class="budget-progress">
+          <div class="budget-fill"></div>
+        </div>
+        <div class="budget-sub">R$245 das 8 peças · R$95 ainda disponível</div>
+      </div>
+    </div>
+
+    <div style="padding: 0 1.2rem;">
+      <div class="compat-tip">
+        <h4>💡 Dica da IA</h4>
+        <p>3 peças da sua wishlist combinam entre si — comprar as 3 gera 12 looks novos no armário.</p>
+      </div>
+    </div>
+
+    <div class="xp-row" style="margin-top: auto;">
+      <span class="xp-badge">⭐</span>
+      <div class="xp-info">
+        <strong>Style Insider · Nível 4</strong>
+        <small>620 / 1000 XP</small>
+        <div class="xp-bar"><div class="xp-fill"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Wishlist <span style="font-size:1.4rem;">🛒</span></h1>
+        <p>Valide antes de comprar — a IA testa a compatibilidade com seu armário atual.</p>
+      </div>
+      <div class="header-stats">
+        <div class="hstat">
+          <strong>8</strong>
+          <span>peças salvas</span>
+        </div>
+        <div class="hstat">
+          <strong style="color:var(--neon);">4</strong>
+          <span>validadas ✓</span>
+        </div>
+        <div class="hstat">
+          <strong>R$245</strong>
+          <span>total na lista</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERT BANNER -->
+    <div class="alert-banner">
+      <div class="alert-icon">🤖</div>
+      <div class="alert-text">
+        <h3>Análise completa! Tênis Platform tem 87% de compatibilidade</h3>
+        <p>Combina com 9 peças do seu armário e gera 14 looks novos. É uma ótima compra.</p>
+      </div>
+      <button class="alert-action" onclick="scrollToCard()">Ver análise →</button>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterTab(this, 'todas')">Todas <span class="tab-count">8</span></button>
+      <button class="filter-tab" onclick="filterTab(this, 'validadas')">✅ Validadas <span class="tab-count">4</span></button>
+      <button class="filter-tab" onclick="filterTab(this, 'pendentes')">⏳ Analisar <span class="tab-count">2</span></button>
+      <button class="filter-tab" onclick="filterTab(this, 'incompativeis')">⚠️ Pouco versátil <span class="tab-count">2</span></button>
+    </div>
+
+    <!-- WISHLIST GRID -->
+    <div class="wl-grid" id="wl-grid">
+
+      <!-- CARD 1 — Validado alto score -->
+      <div class="wl-card" data-status="validadas">
+        <div class="wl-card-img" style="background: linear-gradient(135deg,#D5F0FF,#A8E0FF);">
+          <span class="wl-img-badge badge-validated">✓ VALIDADO</span>
+          👟
+          <div class="compat-meter">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="rgba(255,255,255,0.9)" stroke="#eee" stroke-width="4"/>
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#C8F250" stroke-width="4"
+                stroke-dasharray="113.1" stroke-dashoffset="14.7" stroke-linecap="round"/>
+            </svg>
+            <div class="compat-score-text" style="color:#3a7000;">87%</div>
+          </div>
+        </div>
+        <div class="wl-card-body">
+          <div class="wl-source">🌐 Zara · Calçados</div>
+          <div class="wl-name">Tênis Platform branco chunky</div>
+          <div class="wl-price-row">
+            <span class="wl-price">R$249</span>
+            <span class="wl-price-old">R$319</span>
+            <span class="wl-price-off">-22%</span>
+          </div>
+          <div class="compat-section">
+            <div class="compat-label">
+              Combina com 9 peças
+              <span class="compat-score-badge cs-high">Ótima compra ✓</span>
+            </div>
+            <div class="combo-preview">
+              <div class="combo-item"><div class="combo-item-emoji">👖</div><div class="combo-item-name">Cargo verde</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item"><div class="combo-item-emoji">👕</div><div class="combo-item-name">Cropped off</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item"><div class="combo-item-emoji">👗</div><div class="combo-item-name">Vestido lilás</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="wl-card-footer">
+          <button class="wf-btn primary" onclick="buyItem(this, 'Tênis Platform')">🛒 Comprar</button>
+          <button class="wf-btn" onclick="moveToCloset(this)">👗 Já tenho</button>
+          <button class="wf-btn wf-icon danger" onclick="removeItem(this)" title="Remover">✕</button>
+        </div>
+      </div>
+
+      <!-- CARD 2 — Validado, bom score -->
+      <div class="wl-card" data-status="validadas">
+        <div class="wl-card-img" style="background: linear-gradient(135deg,#1A1A1A,#2C1A3A);">
+          <span class="wl-img-badge badge-validated">✓ VALIDADO</span>
+          🧥
+          <div class="compat-meter">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="rgba(255,255,255,0.9)" stroke="#eee" stroke-width="4"/>
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#C8F250" stroke-width="4"
+                stroke-dasharray="113.1" stroke-dashoffset="22.6" stroke-linecap="round"/>
+            </svg>
+            <div class="compat-score-text" style="color:#3a7000;">80%</div>
+          </div>
+        </div>
+        <div class="wl-card-body">
+          <div class="wl-source">🌐 Renner · Casacos</div>
+          <div class="wl-name">Trench coat preto oversized</div>
+          <div class="wl-price-row">
+            <span class="wl-price">R$189</span>
+          </div>
+          <div class="compat-section">
+            <div class="compat-label">
+              Combina com 7 peças
+              <span class="compat-score-badge cs-high">Ótima compra ✓</span>
+            </div>
+            <div class="combo-preview">
+              <div class="combo-item"><div class="combo-item-emoji">👗</div><div class="combo-item-name">Vestido midi</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item"><div class="combo-item-emoji">👖</div><div class="combo-item-name">Calça preta</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item"><div class="combo-item-emoji">👟</div><div class="combo-item-name">Tênis chunky</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="wl-card-footer">
+          <button class="wf-btn primary" onclick="buyItem(this, 'Trench coat')">🛒 Comprar</button>
+          <button class="wf-btn" onclick="moveToCloset(this)">👗 Já tenho</button>
+          <button class="wf-btn wf-icon danger" onclick="removeItem(this)" title="Remover">✕</button>
+        </div>
+      </div>
+
+      <!-- CARD 3 — Validado, score médio -->
+      <div class="wl-card" data-status="validadas">
+        <div class="wl-card-img" style="background: linear-gradient(135deg,#FFE8D5,#FFCCA8);">
+          <span class="wl-img-badge badge-validated">✓ VALIDADO</span>
+          👜
+          <div class="compat-meter">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="rgba(255,255,255,0.9)" stroke="#eee" stroke-width="4"/>
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#FF9A7C" stroke-width="4"
+                stroke-dasharray="113.1" stroke-dashoffset="45.2" stroke-linecap="round"/>
+            </svg>
+            <div class="compat-score-text" style="color:#c05020;">60%</div>
+          </div>
+        </div>
+        <div class="wl-card-body">
+          <div class="wl-source">📱 Screenshot salvo · Bolsas</div>
+          <div class="wl-name">Bolsa hobo terracota couro</div>
+          <div class="wl-price-row">
+            <span class="wl-price">R$320</span>
+            <span class="wl-price-old">R$420</span>
+            <span class="wl-price-off">-24%</span>
+          </div>
+          <div class="compat-section">
+            <div class="compat-label">
+              Combina com 4 peças
+              <span class="compat-score-badge cs-mid">Compatível</span>
+            </div>
+            <div class="combo-preview">
+              <div class="combo-item"><div class="combo-item-emoji">🧥</div><div class="combo-item-name">Blazer caramel</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item"><div class="combo-item-emoji">👕</div><div class="combo-item-name">Camiseta bege</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item" style="opacity:0.4;"><div class="combo-item-emoji">❓</div><div class="combo-item-name">Poucas opções</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="wl-card-footer">
+          <button class="wf-btn primary" onclick="buyItem(this, 'Bolsa hobo')">🛒 Comprar</button>
+          <button class="wf-btn" onclick="moveToCloset(this)">👗 Já tenho</button>
+          <button class="wf-btn wf-icon danger" onclick="removeItem(this)" title="Remover">✕</button>
+        </div>
+      </div>
+
+      <!-- CARD 4 — Incompatível -->
+      <div class="wl-card" data-status="incompativeis">
+        <div class="wl-card-img" style="background: linear-gradient(135deg,#E8D5A0,#D0B870);">
+          <span class="wl-img-badge badge-incompatible">⚠️ POUCO VERSÁTIL</span>
+          👒
+          <div class="compat-meter">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="rgba(255,255,255,0.9)" stroke="#eee" stroke-width="4"/>
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#E24B4A" stroke-width="4"
+                stroke-dasharray="113.1" stroke-dashoffset="90.5" stroke-linecap="round"/>
+            </svg>
+            <div class="compat-score-text" style="color:#900;">20%</div>
+          </div>
+        </div>
+        <div class="wl-card-body">
+          <div class="wl-source">🌐 Pinterest salvo · Acessórios</div>
+          <div class="wl-name">Chapéu cowgirl palha amarelo</div>
+          <div class="wl-price-row">
+            <span class="wl-price">R$89</span>
+          </div>
+          <div class="compat-section">
+            <div class="compat-label">
+              Combina com apenas 1 peça
+              <span class="compat-score-badge cs-low">⚠️ Repensa</span>
+            </div>
+            <div style="background:rgba(200,50,50,0.06); border-radius:8px; padding:8px; border: 1px solid rgba(200,50,50,0.12);">
+              <p style="font-size:0.75rem; color:#900; line-height:1.5;">🤖 A IA encontrou poucas combinações no seu armário atual. Considere comprar peças que combinem antes de levar esse.</p>
+            </div>
+          </div>
+        </div>
+        <div class="wl-card-footer">
+          <button class="wf-btn" onclick="getSuggestions(this)">🤖 O que combina?</button>
+          <button class="wf-btn wf-icon danger" onclick="removeItem(this)" title="Remover">✕</button>
+        </div>
+      </div>
+
+      <!-- CARD 5 — Pendente análise -->
+      <div class="wl-card" data-status="pendentes">
+        <div class="wl-card-img" style="background: linear-gradient(135deg,#E8E8F5,#D0D0E8);">
+          <span class="wl-img-badge badge-pending">⏳ ANALISANDO</span>
+          👗
+          <div style="position:absolute;inset:0;background:rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;">
+            <div style="background:white;border-radius:12px;padding:10px 16px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+              <div style="font-size:1.5rem;margin-bottom:4px;">🤖</div>
+              <div style="font-size:0.65rem;font-weight:700;color:var(--purple);">IA analisando...</div>
+            </div>
+          </div>
+        </div>
+        <div class="wl-card-body">
+          <div class="wl-source">📱 Foto salva · Roupas</div>
+          <div class="wl-name">Vestido slip dress cinza perola</div>
+          <div class="wl-price-row">
+            <span class="wl-price">R$158</span>
+          </div>
+          <div class="compat-section">
+            <div style="display:flex;align-items:center;gap:8px;padding:10px;background:rgba(151,71,255,0.05);border-radius:10px;border:1px solid rgba(151,71,255,0.1);">
+              <div style="font-size:1.2rem;">⏳</div>
+              <p style="font-size:0.78rem;color:var(--muted);line-height:1.5;">A IA está verificando a compatibilidade com seu armário. Pronto em instantes.</p>
+            </div>
+          </div>
+        </div>
+        <div class="wl-card-footer">
+          <button class="wf-btn" onclick="analyzeNow(this)">🤖 Analisar agora</button>
+          <button class="wf-btn wf-icon danger" onclick="removeItem(this)" title="Remover">✕</button>
+        </div>
+      </div>
+
+      <!-- CARD 6 — Validado  -->
+      <div class="wl-card" data-status="validadas">
+        <div class="wl-card-img" style="background: linear-gradient(135deg,#D5FFE8,#A8FFCC);">
+          <span class="wl-img-badge badge-validated">✓ VALIDADO</span>
+          💍
+          <div class="compat-meter">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="rgba(255,255,255,0.9)" stroke="#eee" stroke-width="4"/>
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#C8F250" stroke-width="4"
+                stroke-dasharray="113.1" stroke-dashoffset="11.3" stroke-linecap="round"/>
+            </svg>
+            <div class="compat-score-text" style="color:#3a7000;">90%</div>
+          </div>
+        </div>
+        <div class="wl-card-body">
+          <div class="wl-source">🌐 Mercado Livre · Acessórios</div>
+          <div class="wl-name">Conjunto argolas prata vintage</div>
+          <div class="wl-price-row">
+            <span class="wl-price">R$48</span>
+          </div>
+          <div class="compat-section">
+            <div class="compat-label">
+              Combina com 15 peças
+              <span class="compat-score-badge cs-high">Ótima compra ✓</span>
+            </div>
+            <div class="combo-preview">
+              <div class="combo-item"><div class="combo-item-emoji">👗</div><div class="combo-item-name">Qualquer vestido</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item"><div class="combo-item-emoji">🧥</div><div class="combo-item-name">Blazer</div></div>
+              <div class="combo-plus">+</div>
+              <div class="combo-item"><div class="combo-item-emoji">👕</div><div class="combo-item-name">Cropped</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="wl-card-footer">
+          <button class="wf-btn primary" onclick="buyItem(this, 'Argolas prata')">🛒 Comprar</button>
+          <button class="wf-btn" onclick="moveToCloset(this)">👗 Já tenho</button>
+          <button class="wf-btn wf-icon danger" onclick="removeItem(this)" title="Remover">✕</button>
+        </div>
+      </div>
+
+      <!-- ADD CARD -->
+      <div class="wl-add-card" onclick="openModal()">
+        <div class="add-icon">＋</div>
+        <strong>Adicionar à wishlist</strong>
+        <p>Upload de foto, print de tela ou cole o link da loja</p>
+      </div>
+
+    </div><!-- /wl-grid -->
+  </main>
+</div>
+
+<!-- MODAL ADICIONAR -->
+<div class="modal-bg" id="modal-add">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Adicionar à wishlist</h3>
+    <p>Cole o link, faça upload ou arraste uma foto da peça desejada.</p>
+
+    <div class="modal-upload-area">
+      <div class="big-icon">📸</div>
+      <strong>Arraste uma foto ou print de tela</strong>
+      <span>PNG, JPG · ou cole um link abaixo</span>
+    </div>
+
+    <input class="modal-input" type="text" placeholder="🔗 Cole o link da loja (Zara, Shein, Renner...)">
+    <input class="modal-input" type="text" placeholder="💰 Preço (opcional)">
+
+    <div class="ai-analysis-box">
+      <h4>🤖 Prévia da análise IA</h4>
+      <div class="compat-big">
+        <div class="compat-num">87<span>%</span></div>
+        <div class="compat-desc">Alta compatibilidade com seu armário. A IA encontrou 9 peças que combinam e gerou 14 looks.</div>
+      </div>
+      <div class="combos-mini">
+        <div class="combo-mini-card"><div class="emojis">👟👖👕</div><small>Look casual</small></div>
+        <div class="combo-mini-card"><div class="emojis">👟👗💍</div><small>Look festa</small></div>
+        <div class="combo-mini-card"><div class="emojis">👟🧥👖</div><small>Look trabalho</small></div>
+      </div>
+    </div>
+
+    <button class="modal-submit" onclick="closeModal()">✓ Salvar na wishlist</button>
+  </div>
+</div>
+
+<script>
+function openModal() {
+  document.getElementById('modal-add').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-add').classList.remove('open');
+}
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+function filterTab(el, status) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const cards = document.querySelectorAll('.wl-card[data-status]');
+  cards.forEach(card => {
+    if (status === 'todas' || card.dataset.status === status) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+function setFilter(status, el) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  const cards = document.querySelectorAll('.wl-card[data-status]');
+  cards.forEach(card => {
+    if (status === 'todas' || card.dataset.status === status) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+function buyItem(btn, name) {
+  const card = btn.closest('.wl-card');
+  btn.textContent = '✓ Comprado!';
+  btn.style.background = 'var(--neon)';
+  btn.style.color = 'var(--ink)';
+  btn.style.borderColor = 'var(--neon)';
+  setTimeout(() => {
+    card.style.opacity = '0.5';
+    card.style.transform = 'scale(0.97)';
+    setTimeout(() => {
+      card.remove();
+    }, 500);
+  }, 1500);
+}
+
+function moveToCloset(btn) {
+  const card = btn.closest('.wl-card');
+  btn.textContent = '✓ Adicionado!';
+  btn.style.background = 'var(--neon)';
+  btn.style.color = 'var(--ink)';
+  setTimeout(() => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(-10px)';
+    card.style.transition = 'all 0.4s ease';
+    setTimeout(() => card.remove(), 400);
+  }, 1200);
+}
+
+function removeItem(btn) {
+  const card = btn.closest('.wl-card');
+  card.style.transition = 'all 0.3s ease';
+  card.style.opacity = '0';
+  card.style.transform = 'scale(0.9)';
+  setTimeout(() => card.remove(), 300);
+}
+
+function getSuggestions(btn) {
+  btn.textContent = '🤖 Buscando peças...';
+  setTimeout(() => {
+    btn.textContent = '✓ Sugestões geradas!';
+    btn.style.background = 'var(--purple)';
+    btn.style.color = 'white';
+    btn.style.borderColor = 'var(--purple)';
+  }, 1500);
+}
+
+function analyzeNow(btn) {
+  btn.textContent = '⏳ Analisando...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '✓ Análise completa!';
+    btn.style.background = 'var(--neon)';
+    btn.style.color = 'var(--ink)';
+    const card = btn.closest('.wl-card');
+    const badge = card.querySelector('.wl-img-badge');
+    badge.textContent = '✓ VALIDADO';
+    badge.className = 'wl-img-badge badge-validated';
+    card.dataset.status = 'validadas';
+  }, 2000);
+}
+
+function scrollToCard() {
+  const firstCard = document.querySelector('.wl-card');
+  if (firstCard) firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+</body>
+</html>
