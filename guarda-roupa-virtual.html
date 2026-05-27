@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DRIP — Seu Guarda-Roupa Virtual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --neon: #C8F250;
+    --pink: #FF6BBA;
+    --cream: #FAF7F0;
+    --ink: #0F0E0D;
+    --muted: #6B6760;
+    --card-bg: #FFFFFF;
+    --border: rgba(15,14,13,0.12);
+    --purple: #9747FF;
+    --orange: #FF6B35;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 2.5rem;
+    background: rgba(250,247,240,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.5rem;
+    letter-spacing: -0.04em; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-logo span {
+    background: var(--neon); color: var(--ink);
+    padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    background: var(--ink); color: var(--cream);
+    padding: 0.55rem 1.4rem; border-radius: 100px;
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-cta:hover { background: var(--purple); transform: scale(1.03); }
+
+  /* ---- HERO ---- */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 700px 500px at 20% 30%, rgba(200,242,80,0.25) 0%, transparent 65%),
+      radial-gradient(ellipse 600px 400px at 80% 70%, rgba(151,71,255,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 400px 300px at 60% 20%, rgba(255,107,186,0.15) 0%, transparent 55%);
+    z-index: 0;
+  }
+  .hero > * { position: relative; z-index: 1; }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.8); border: 1px solid var(--border);
+    padding: 0.4rem 1rem; border-radius: 100px;
+    font-size: 0.8rem; font-weight: 500; color: var(--muted);
+    margin-bottom: 1.8rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--neon); box-shadow: 0 0 6px var(--neon);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.3)} }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(3.5rem, 9vw, 7.5rem);
+    line-height: 0.92; letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .hero h1 .line-accent { color: var(--purple); }
+  .hero h1 .line-neon {
+    -webkit-text-stroke: 2px var(--ink);
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .hero-sub {
+    max-width: 520px; font-size: 1.1rem; color: var(--muted);
+    line-height: 1.6; margin-bottom: 2.5rem;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--cream);
+    padding: 0.85rem 2.2rem; border-radius: 100px;
+    font-size: 1rem; font-weight: 500; text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--purple); transform: translateY(-2px); }
+  .btn-secondary {
+    background: transparent; color: var(--ink);
+    padding: 0.85rem 2.2rem; border-radius: 100px;
+    border: 1.5px solid var(--ink); font-size: 1rem;
+    font-weight: 500; text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--ink); color: var(--cream); transform: translateY(-2px); }
+
+  .hero-stats {
+    display: flex; gap: 2.5rem; margin-top: 4rem;
+    animation: fadeUp 0.7s 0.4s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem;
+    letter-spacing: -0.04em; line-height: 1;
+  }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+
+  /* ---- MOCKUP STRIP ---- */
+  .mockup-strip {
+    padding: 1rem 2rem 5rem;
+    display: flex; justify-content: center; overflow: hidden;
+    animation: fadeUp 0.9s 0.5s ease both;
+  }
+  .mockup-phone {
+    width: 240px; background: var(--ink);
+    border-radius: 36px; padding: 8px;
+    box-shadow: 0 60px 100px rgba(15,14,13,0.25), 0 20px 40px rgba(15,14,13,0.15);
+    position: relative; transform: rotate(-3deg); margin: 0 -20px;
+  }
+  .mockup-phone.center { transform: rotate(0deg) scale(1.08); z-index: 2; }
+  .mockup-phone.right { transform: rotate(3deg); }
+  .phone-screen {
+    border-radius: 30px; overflow: hidden;
+    aspect-ratio: 9/19.5; background: var(--cream);
+    display: flex; flex-direction: column;
+  }
+  .phone-top-bar {
+    background: var(--ink); height: 28px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .phone-notch {
+    width: 60px; height: 16px;
+    background: var(--ink); border-radius: 0 0 12px 12px;
+  }
+  .phone-content { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .phone-header-text { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700; }
+  .clothing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .clothing-card {
+    border-radius: 10px; aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .clothing-card.c1 { background: #E8D5FF; }
+  .clothing-card.c2 { background: #D5F0FF; }
+  .clothing-card.c3 { background: #FFE5D5; }
+  .clothing-card.c4 { background: var(--neon); }
+  .look-suggestion {
+    background: var(--ink); border-radius: 10px;
+    padding: 8px; color: var(--cream);
+    font-size: 0.55rem; font-family: 'Syne', sans-serif; font-weight: 700;
+  }
+  .look-preview {
+    display: flex; gap: 4px;
+    margin-top: 4px;
+  }
+  .look-item {
+    flex: 1; border-radius: 6px; height: 30px;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+  }
+
+  /* ---- SECTION COMMONS ---- */
+  section { padding: 6rem 2rem; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .section-label::before {
+    content: ''; width: 20px; height: 2px; background: var(--purple);
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.0; letter-spacing: -0.03em;
+    margin-bottom: 1.2rem;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+
+  /* ---- FEATURES ---- */
+  .features-section { background: var(--ink); color: var(--cream); }
+  .features-section .section-label { color: rgba(250,247,240,0.5); }
+  .features-section .section-label::before { background: var(--neon); }
+  .features-section .section-title { color: var(--cream); }
+  .features-header { margin-bottom: 3.5rem; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    background: rgba(250,247,240,0.08);
+    border: 1.5px solid rgba(250,247,240,0.08);
+    border-radius: 20px; overflow: hidden;
+  }
+  .feature-card {
+    background: var(--ink); padding: 2rem 1.8rem;
+    transition: background 0.25s;
+    cursor: default;
+  }
+  .feature-card:hover { background: rgba(250,247,240,0.04); }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 1.2rem;
+  }
+  .fi-neon { background: rgba(200,242,80,0.15); }
+  .fi-pink { background: rgba(255,107,186,0.15); }
+  .fi-purple { background: rgba(151,71,255,0.15); }
+  .fi-orange { background: rgba(255,107,53,0.15); }
+  .feature-card h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1.05rem; margin-bottom: 0.6rem; color: var(--cream);
+  }
+  .feature-card p { font-size: 0.875rem; color: rgba(250,247,240,0.55); line-height: 1.65; }
+  .feature-tag {
+    display: inline-block; margin-top: 1rem;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+    padding: 3px 10px; border-radius: 100px;
+  }
+  .tag-neon { background: rgba(200,242,80,0.15); color: var(--neon); }
+  .tag-pink { background: rgba(255,107,186,0.15); color: var(--pink); }
+  .tag-purple { background: rgba(151,71,255,0.15); color: #B97CFF; }
+  .tag-orange { background: rgba(255,107,53,0.15); color: #FF9A7C; }
+
+  /* ---- HOW IT WORKS ---- */
+  .how-section { background: var(--cream); }
+  .steps-row {
+    display: flex; gap: 0; position: relative; margin-top: 3.5rem;
+    justify-content: space-between;
+  }
+  .steps-row::before {
+    content: '';
+    position: absolute; top: 28px; left: 8%; right: 8%;
+    height: 1.5px; background: linear-gradient(to right, var(--purple), var(--pink), var(--neon));
+    z-index: 0;
+  }
+  .step {
+    flex: 1; text-align: center; padding: 0 1.2rem;
+    position: relative; z-index: 1;
+  }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--cream); border: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+    margin: 0 auto 1.2rem;
+    position: relative;
+  }
+  .step:nth-child(1) .step-num { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .step:nth-child(2) .step-num { background: var(--pink); color: #fff; border-color: var(--pink); }
+  .step:nth-child(3) .step-num { background: var(--neon); color: var(--ink); border-color: var(--neon); }
+  .step:nth-child(4) .step-num { background: var(--orange); color: #fff; border-color: var(--orange); }
+  .step h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; }
+  .step p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+  /* ---- AVATAR SECTION ---- */
+  .avatar-section {
+    background: var(--cream);
+    padding: 5rem 2rem;
+  }
+  .avatar-split {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: center; max-width: 1180px; margin: 0 auto;
+  }
+  .avatar-visual {
+    background: linear-gradient(135deg, #F0E8FF 0%, #FFE8F5 50%, #E8FFD5 100%);
+    border-radius: 28px; padding: 2.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 1.2rem;
+    border: 1.5px solid rgba(151,71,255,0.15);
+    position: relative; overflow: hidden;
+  }
+  .avatar-visual::before {
+    content: 'DRIP'; font-family: 'Syne', sans-serif;
+    font-size: 8rem; font-weight: 800; letter-spacing: -0.05em;
+    color: rgba(151,71,255,0.06);
+    position: absolute; bottom: -10px; right: -10px;
+    line-height: 1;
+  }
+  .avatar-figure {
+    width: 100px; height: 200px;
+    background: #D4B5FF;
+    border-radius: 50px 50px 30px 30px;
+    position: relative; display: flex; align-items: flex-end; justify-content: center;
+  }
+  .avatar-head {
+    width: 54px; height: 54px; border-radius: 50%;
+    background: #FFCBA8; position: absolute; top: -28px;
+    border: 3px solid #FFF;
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+  }
+  .avatar-shirt {
+    position: absolute; top: 28px; width: 80%;
+    height: 60px; background: var(--neon);
+    border-radius: 8px;
+  }
+  .avatar-pants {
+    width: 80%; height: 80px; background: #9747FF;
+    border-radius: 0 0 10px 10px; margin-bottom: 0;
+  }
+  .outfit-chips {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  }
+  .outfit-chip {
+    background: white; padding: 5px 14px; border-radius: 100px;
+    font-size: 0.78rem; font-weight: 500; color: var(--ink);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chip-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .avatar-text .section-title { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+  .avatar-text p { color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .feature-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 0.9rem; color: var(--ink);
+  }
+  .feature-list li::before {
+    content: '✓'; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--neon); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ---- WISHLIST SECTION ---- */
+  .wishlist-section {
+    background: var(--ink); color: var(--cream);
+    text-align: center;
+  }
+  .wishlist-section .section-title { color: var(--cream); max-width: 700px; margin: 0 auto 1rem; }
+  .wishlist-section p { color: rgba(250,247,240,0.55); max-width: 520px; margin: 0 auto 3rem; }
+  .wishlist-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1rem; max-width: 900px; margin: 0 auto;
+  }
+  .wl-card {
+    background: rgba(250,247,240,0.05); border-radius: 18px;
+    border: 1px solid rgba(250,247,240,0.09);
+    padding: 1.5rem; text-align: left;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .wl-card:hover { background: rgba(250,247,240,0.09); border-color: rgba(250,247,240,0.18); }
+  .wl-emoji { font-size: 2rem; margin-bottom: 0.8rem; }
+  .wl-card h4 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.95rem; margin-bottom: 0.4rem;
+  }
+  .wl-card p { font-size: 0.82rem; color: rgba(250,247,240,0.45); line-height: 1.6; }
+  .wl-badge {
+    display: inline-block; margin-top: 1rem;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em;
+    padding: 3px 10px; border-radius: 100px;
+    background: rgba(200,242,80,0.12); color: var(--neon);
+  }
+
+  /* ---- GAMIFICATION ---- */
+  .game-section { background: var(--cream); }
+  .game-split { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .badges-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .badge-item {
+    aspect-ratio: 1; border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 6px;
+    font-size: 1.8rem;
+    border: 1.5px solid var(--border);
+    background: white; transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .badge-item:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.09); }
+  .badge-item span { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); text-transform: uppercase; }
+  .badge-item.unlocked { border-color: var(--neon); background: linear-gradient(135deg, #F5FFD5, white); }
+  .badge-item.locked { opacity: 0.35; filter: grayscale(1); }
+  .xp-bar-wrapper { margin-top: 1.5rem; }
+  .xp-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; }
+  .xp-bar { height: 10px; background: rgba(0,0,0,0.08); border-radius: 100px; overflow: hidden; }
+  .xp-fill { height: 100%; width: 62%; background: linear-gradient(to right, var(--purple), var(--neon)); border-radius: 100px; }
+
+  /* ---- PRICING ---- */
+  .pricing-section { background: var(--cream); text-align: center; }
+  .pricing-section .section-title { margin-bottom: 0.5rem; }
+  .pricing-section > .container > p { color: var(--muted); margin-bottom: 3rem; }
+  .pricing-grid {
+    display: grid; grid-template-columns: 1fr 1.08fr 1fr;
+    gap: 1rem; max-width: 880px; margin: 0 auto;
+    align-items: center;
+  }
+  .plan-card {
+    border-radius: 22px; padding: 2rem 1.8rem;
+    border: 1.5px solid var(--border);
+    background: white; text-align: left;
+    transition: transform 0.2s;
+  }
+  .plan-card:hover { transform: translateY(-4px); }
+  .plan-card.featured {
+    background: var(--ink); color: var(--cream);
+    border-color: var(--ink); transform: scale(1.02);
+  }
+  .plan-name {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem;
+  }
+  .plan-card.featured .plan-name { color: rgba(250,247,240,0.5); }
+  .plan-price {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 2.5rem; letter-spacing: -0.04em; margin-bottom: 0.3rem;
+  }
+  .plan-period { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .plan-card.featured .plan-period { color: rgba(250,247,240,0.45); }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.8rem; }
+  .plan-features li { display: flex; align-items: center; gap: 10px; font-size: 0.875rem; }
+  .plan-features li::before {
+    content: '✓'; width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(200,242,80,0.2); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 800; flex-shrink: 0;
+  }
+  .plan-card.featured .plan-features li::before { background: rgba(200,242,80,0.15); color: var(--neon); }
+  .plan-card.featured .plan-features li { color: rgba(250,247,240,0.8); }
+  .plan-features li.disabled { opacity: 0.35; }
+  .plan-features li.disabled::before { background: rgba(0,0,0,0.06); color: var(--muted); }
+  .plan-btn {
+    width: 100%; padding: 0.8rem; border-radius: 100px;
+    border: 1.5px solid var(--ink); background: transparent;
+    font-size: 0.9rem; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    text-decoration: none; display: block; text-align: center;
+  }
+  .plan-btn:hover { background: var(--ink); color: var(--cream); }
+  .plan-card.featured .plan-btn { background: var(--neon); border-color: var(--neon); color: var(--ink); }
+  .plan-card.featured .plan-btn:hover { background: #d8ff5e; }
+  .featured-badge {
+    display: inline-block; background: var(--purple);
+    color: white; font-size: 0.7rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 100px;
+    margin-bottom: 0.8rem; letter-spacing: 0.05em;
+  }
+
+  /* ---- STYLES STRIP ---- */
+  .styles-section { background: var(--ink); overflow: hidden; padding: 4rem 0; }
+  .styles-scroll {
+    display: flex; gap: 1rem; animation: scrollX 18s linear infinite;
+    width: max-content;
+  }
+  @keyframes scrollX { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .style-pill {
+    background: rgba(250,247,240,0.07); border: 1px solid rgba(250,247,240,0.1);
+    padding: 0.6rem 1.4rem; border-radius: 100px; white-space: nowrap;
+    font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600;
+    color: rgba(250,247,240,0.7); transition: color 0.2s;
+  }
+  .style-pill.hi { background: rgba(200,242,80,0.12); color: var(--neon); border-color: rgba(200,242,80,0.25); }
+  .style-pill.pi { background: rgba(255,107,186,0.12); color: var(--pink); border-color: rgba(255,107,186,0.25); }
+  .style-pill.pu { background: rgba(151,71,255,0.12); color: #B97CFF; border-color: rgba(151,71,255,0.25); }
+  .styles-label {
+    text-align: center; font-family: 'Syne', sans-serif;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(250,247,240,0.3);
+    margin-bottom: 1.5rem; padding: 0 2rem;
+  }
+
+  /* ---- CTA ---- */
+  .cta-section {
+    background: var(--cream); text-align: center; padding: 6rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 800px 400px at 50% 50%, rgba(200,242,80,0.2) 0%, transparent 70%);
+  }
+  .cta-section > * { position: relative; }
+  .cta-section .section-title { font-size: clamp(2.5rem, 6vw, 5rem); max-width: 800px; margin: 0 auto 1.2rem; }
+  .cta-section p { color: var(--muted); max-width: 480px; margin: 0 auto 2.5rem; }
+  .cta-tag {
+    background: var(--ink); color: var(--neon);
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+    padding: 4px 14px; border-radius: 100px; margin-bottom: 1.5rem;
+    display: inline-block;
+  }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--ink); color: rgba(250,247,240,0.45);
+    padding: 3rem 2rem; display: flex;
+    align-items: center; justify-content: space-between; flex-wrap: gap;
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 1.3rem; color: var(--cream); letter-spacing: -0.04em;
+  }
+  .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-links a { color: rgba(250,247,240,0.4); text-decoration: none; font-size: 0.82rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--cream); }
+  .footer-right { font-size: 0.78rem; }
+
+  /* ---- ANIMATIONS ---- */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .avatar-split, .game-split { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .wishlist-cards { grid-template-columns: 1fr; }
+    .steps-row { flex-direction: column; }
+    .steps-row::before { display: none; }
+    nav .nav-links { display: none; }
+    .hero h1 { font-size: clamp(2.8rem, 12vw, 5rem); }
+    .mockup-phone { display: none; }
+    .mockup-phone.center { display: block; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DRIP <span>BETA</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Funcionalidades</a></li>
+    <li><a href="#avatar">Avatar</a></li>
+    <li><a href="#pricing">Planos</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">Entrar na lista →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span class="dot"></span>Powered by IA — feito pra Geração Z</div>
+  <h1>
+    Seu look<br>
+    <span class="line-accent">perfeito</span><br>
+    <span class="line-neon">todo dia</span>
+  </h1>
+  <p class="hero-sub">O guarda-roupa inteligente que entende seu estilo, sugere combinações e prova que aquela compra compulsiva era realmente necessária.</p>
+  <div class="hero-actions">
+    <a href="#cta" class="btn-primary">Começar grátis ✦</a>
+    <a href="#features" class="btn-secondary">Ver como funciona</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">10K+</div><div class="stat-label">na lista de espera</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">combinações possíveis</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">"não tenho nada pra vestir"</div></div>
+  </div>
+</section>
+
+<!-- MOCKUP STRIP -->
+<div class="mockup-strip">
+  <div class="mockup-phone">
+    <div class="phone-screen">
+      <div style="padding:10px 12px; font-family:'Syne',sans-serif; font-size:0.6rem; font-weight:700; color:#999;">Segunda-feira</div>
+      <div class="phone-content">
+        <div class="phone-header-text">Seu armário ✨</div>
+        <div class="clothing-grid">
+          <div class="clothing-card c1">👕</div>
+          <div class="clothing-card c2">👖</div>
+          <div class="clothing-card c3">👗</div>
+          <div class="clothing-card c4">🧥</div>
+        </div>
+        <div class="look-suggestion">
+          <div>🤖 Look de hoje</div>
+          <div class="look-preview">
+            <div class="look-item" style="background:#E8D5FF;">👕</div>
+            <div class="look-item" style="background:#D5F0FF;">👖</div>
+            <div class="look-item" style="background:#FFE5D5;">👟</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup-phone center">
+    <div class="phone-screen">
+      <div style="background:linear-gradient(135deg,#F0E8FF,#FFE8F5); padding:12px; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+        <div style="font-family:'Syne',sans-serif; font-size:0.62rem; font-weight:700; color:#9747FF; letter-spacing:0.08em;">AVATAR VIRTUAL</div>
+        <div style="width:60px; height:120px; background:#D4B5FF; border-radius:30px 30px 14px 14px; position:relative; display:flex; align-items:flex-end; justify-content:center;">
+          <div style="width:34px;height:34px;border-radius:50%;background:#FFCBA8;position:absolute;top:-18px;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.8rem;">😊</div>
+          <div style="position:absolute;top:18px;width:80%;height:36px;background:#C8F250;border-radius:5px;"></div>
+          <div style="width:80%;height:50px;background:#9747FF;border-radius:0 0 8px 8px;"></div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">
+          <div style="background:white;padding:3px 8px;border-radius:100px;font-size:0.55rem;font-weight:600;color:#333;border:1px solid rgba(0,0,0,0.1);">Streetwear</div>
+          <div style="background:#E8D5FF;padding:3px 8px;border-radius:100px;font-size:0.55rem;font-weight:600;color:#6600CC;">Y2K ✓</div>
+          <div style="background:#D5FFE5;padding:3px 8px;border-radius:100px;font-size:0.55rem;font-weight:600;color:#006633;">Clean Girl</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup-phone right">
+    <div class="phone-screen">
+      <div class="phone-content">
+        <div class="phone-header-text">💰 Custo por uso</div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <div style="background:#f0f0f0;border-radius:8px;padding:7px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.6rem;">👗 Vestido floral</span>
+            <span style="font-size:0.6rem;font-weight:700;color:#9747FF;">R$7/uso</span>
+          </div>
+          <div style="background:#F5FFD5;border-radius:8px;padding:7px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(200,242,80,0.4);">
+            <span style="font-size:0.6rem;">👕 Cropped bege</span>
+            <span style="font-size:0.6rem;font-weight:700;color:#3a7000;">R$2/uso ⭐</span>
+          </div>
+          <div style="background:#f0f0f0;border-radius:8px;padding:7px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.6rem;">🧥 Jaqueta jeans</span>
+            <span style="font-size:0.6rem;font-weight:700;color:#333;">R$4/uso</span>
+          </div>
+        </div>
+        <div style="background:#FFE5E5;border-radius:8px;padding:8px;margin-top:4px;">
+          <div style="font-size:0.55rem;font-weight:700;color:#C00;margin-bottom:3px;">⚠️ Desencalhar peça</div>
+          <div style="font-size:0.5rem;color:#666;">Bota preta há 47 dias sem uso</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STYLES STRIP -->
+<div class="styles-section">
+  <div class="styles-label">estilos que a gente entende</div>
+  <div style="overflow:hidden;">
+    <div class="styles-scroll">
+      <div class="style-pill hi">Streetwear</div>
+      <div class="style-pill">Cottagecore</div>
+      <div class="style-pill pi">Y2K Aesthetic</div>
+      <div class="style-pill">Dark Academia</div>
+      <div class="style-pill pu">Clean Girl</div>
+      <div class="style-pill">Gorpcore</div>
+      <div class="style-pill hi">Coquette</div>
+      <div class="style-pill">Coastal Grandmother</div>
+      <div class="style-pill pi">Soft Girl</div>
+      <div class="style-pill">Old Money</div>
+      <div class="style-pill pu">Barbiecore</div>
+      <div class="style-pill">Fairycore</div>
+      <div class="style-pill hi">Streetwear</div>
+      <div class="style-pill">Cottagecore</div>
+      <div class="style-pill pi">Y2K Aesthetic</div>
+      <div class="style-pill">Dark Academia</div>
+      <div class="style-pill pu">Clean Girl</div>
+      <div class="style-pill">Gorpcore</div>
+      <div class="style-pill hi">Coquette</div>
+      <div class="style-pill">Coastal Grandmother</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="features-header reveal">
+      <div class="section-label">Funcionalidades</div>
+      <h2 class="section-title">IA que entende<br>seu estilo de verdade</h2>
+    </div>
+    <div class="features-grid reveal">
+      <div class="feature-card">
+        <div class="feature-icon fi-purple">🎨</div>
+        <h3>Mapeamento de estilo</h3>
+        <p>Quiz estético inicial que identifica seu vibe. O algoritmo aprende com cada "amei / passado" que você dá — quanto mais usa, mais preciso fica.</p>
+        <span class="feature-tag tag-purple">QUIZ INTERATIVO</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-neon">✨</div>
+        <h3>Algoritmo de combinação</h3>
+        <p>Sugestões baseadas em círculos cromáticos, ocasião do dia e previsão do tempo em tempo real. Nunca mais sair inadequado pra chuva.</p>
+        <span class="feature-tag tag-neon">CLIMA EM TEMPO REAL</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-pink">🔓</div>
+        <h3>Desencalhar peça</h3>
+        <p>Tem uma roupa parada faz meses? Seleciona ela e a IA cria combinações estilosas usando só o que você já tem. Armário aproveitado.</p>
+        <span class="feature-tag tag-pink">NOVA FUNÇÃO</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-neon">📸</div>
+        <h3>Upload inteligente</h3>
+        <p>Manda foto em lote. A IA identifica a peça, a cor, remove o fundo e categoriza tudo automaticamente. Zero digitação manual.</p>
+        <span class="feature-tag tag-neon">IA VISUAL</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-purple">📅</div>
+        <h3>Planejador semanal</h3>
+        <p>Calendário de looks: arrasta e solta os outfits do avatar nos dias da semana. Sua semana toda planejada em 5 minutos.</p>
+        <span class="feature-tag tag-purple">DRAG & DROP</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-orange">💰</div>
+        <h3>Custo por uso</h3>
+        <p>Cada vez que você marca um look no calendário, o sistema atualiza o valor pago vs. vezes usadas. Moda consciente de verdade.</p>
+        <span class="feature-tag tag-orange">CONSUMO CONSCIENTE</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="container">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-label" style="justify-content:center;">Como funciona</div>
+      <h2 class="section-title">Do upload ao look<br>em minutos</h2>
+    </div>
+    <div class="steps-row reveal">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Crie seu avatar</h4>
+        <p>Configure altura, biotipo, tom de pele e estilo visual para uma representação fiel de você.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Fotografe seu armário</h4>
+        <p>Manda as fotos em lote. A IA categoriza tudo automaticamente com etiquetas inteligentes.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Faça o quiz de estilo</h4>
+        <p>Curte ou passa em looks até o algoritmo aprender exatamente o que é o seu vibe.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Receba looks diários</h4>
+        <p>Acorde, abra o app e seu outfit do dia já está pronto — com previsão do tempo inclusa.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AVATAR SECTION -->
+<section class="avatar-section" id="avatar">
+  <div class="avatar-split">
+    <div class="avatar-visual reveal">
+      <div style="text-align:center; font-family:'Syne',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.1em; color:#9747FF; text-transform:uppercase;">Provador Virtual</div>
+      <div class="avatar-figure">
+        <div class="avatar-head">😊</div>
+        <div class="avatar-shirt"></div>
+        <div class="avatar-pants"></div>
+      </div>
+      <div class="outfit-chips">
+        <div class="outfit-chip"><span class="chip-dot" style="background:#C8F250"></span>Cropped amarelo-lima</div>
+        <div class="outfit-chip"><span class="chip-dot" style="background:#9747FF"></span>Calça cargo roxa</div>
+        <div class="outfit-chip"><span class="chip-dot" style="background:#FFD5B5"></span>Tênis chunky nude</div>
+      </div>
+      <div style="background:rgba(151,71,255,0.1); border-radius:12px; padding:12px 16px; width:100%; text-align:center;">
+        <div style="font-size:0.72rem; color:#9747FF; font-weight:700;">✓ Combinação validada pela IA</div>
+        <div style="font-size:0.65rem; color:#666; margin-top:3px;">Círculo cromático complementar · Casual · 22°C ✓</div>
+      </div>
+    </div>
+
+    <div class="avatar-text reveal" style="padding: 1rem 0;">
+      <div class="section-label">Avatar inteligente</div>
+      <h2 class="section-title">Veja como fica<br><span style="color:var(--purple);">antes de vestir</span></h2>
+      <p>O avatar 2D/3D é feito com suas medidas e características reais. Faça upload da foto da roupa, a IA remove o fundo e veste seu avatar — é um provador na palma da mão.</p>
+      <ul class="feature-list">
+        <li>Avatar personalizado com altura, biotipo e tom de pele</li>
+        <li>Remoção automática de fundo das fotos de roupa</li>
+        <li>Sobreposição e ajuste visual realista da peça</li>
+        <li>Cenários e fundos que você desbloqueia com XP</li>
+        <li>Compatível com wishlist — teste antes de comprar</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- WISHLIST -->
+<section class="wishlist-section">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" style="justify-content:center; color:rgba(250,247,240,0.4);">Consumo inteligente</div>
+      <h2 class="section-title">Comprou porque combina,<br>não por impulso</h2>
+      <p>Antes de clicar em "comprar", deixa a IA provar se aquela peça faz sentido pro seu armário.</p>
+    </div>
+    <div class="wishlist-cards reveal">
+      <div class="wl-card">
+        <div class="wl-emoji">📱</div>
+        <h4>Adicione à wishlist</h4>
+        <p>Upload de print ou foto diretamente da loja online. A IA identifica a peça automaticamente.</p>
+        <span class="wl-badge">PASSO 1</span>
+      </div>
+      <div class="wl-card">
+        <div class="wl-emoji">👗</div>
+        <h4>Veste no avatar</h4>
+        <p>A IA coloca a peça nova no seu avatar e gera 3 combinações com roupas que você já tem.</p>
+        <span class="wl-badge">PASSO 2</span>
+      </div>
+      <div class="wl-card">
+        <div class="wl-emoji">✅</div>
+        <h4>Compra validada</h4>
+        <p>Se combinar com 3+ looks, é compra inteligente. Se não, você economizou — literalmente.</p>
+        <span class="wl-badge">PASSO 3</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMIFICATION -->
+<section class="game-section">
+  <div class="container">
+    <div class="game-split">
+      <div class="reveal">
+        <div class="section-label">Gamificação</div>
+        <h2 class="section-title">Ganhe insígnias<br>sendo você mesmo</h2>
+        <p style="color:var(--muted); margin-bottom:1.5rem; line-height:1.7;">Cada look registrado, cada peça catalogada, cada roupa desencalhada vale pontos. Sobe de nível e desbloqueia cenários e fundos exclusivos pro seu avatar.</p>
+        <div class="xp-bar-wrapper">
+          <div class="xp-label"><span>Nível 4 — Fashion Insider</span><span style="color:var(--purple);">620 / 1000 XP</span></div>
+          <div class="xp-bar"><div class="xp-fill"></div></div>
+        </div>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:0.8rem;">Mais 380 XP para Nível 5 — Style Guru ✨</p>
+      </div>
+      <div class="reveal">
+        <div class="badges-grid">
+          <div class="badge-item unlocked">🎯<span>First Look</span></div>
+          <div class="badge-item unlocked">📸<span>Fotógrafo</span></div>
+          <div class="badge-item unlocked">♻️<span>Consciente</span></div>
+          <div class="badge-item unlocked">🌟<span>Trendsetter</span></div>
+          <div class="badge-item unlocked">🎨<span>Colorista</span></div>
+          <div class="badge-item unlocked">📅<span>Planejador</span></div>
+          <div class="badge-item locked">👑<span>Style Guru</span></div>
+          <div class="badge-item locked">💎<span>Fashion God</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" style="justify-content:center;">Planos</div>
+      <h2 class="section-title">Comece grátis,<br>evolua quando quiser</h2>
+      <p style="color:var(--muted);">Sem cartão de crédito pra começar. Sem surpresas.</p>
+    </div>
+    <div class="pricing-grid reveal">
+      <div class="plan-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">R$0</div>
+        <div class="plan-period">para sempre gratuito</div>
+        <ul class="plan-features">
+          <li>Até 30 peças no armário</li>
+          <li>5 sugestões de look por dia</li>
+          <li>Avatar básico</li>
+          <li>Planejador semanal</li>
+          <li class="disabled">Desencalhar peça (IA)</li>
+          <li class="disabled">Wishlist ilimitada</li>
+          <li class="disabled">Custo por uso avançado</li>
+        </ul>
+        <a href="#cta" class="plan-btn">Começar grátis</a>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="featured-badge">⚡ MAIS POPULAR</div>
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">R$19</div>
+        <div class="plan-period">por mês · cancele quando quiser</div>
+        <ul class="plan-features">
+          <li>Armário ilimitado</li>
+          <li>Looks ilimitados por dia</li>
+          <li>Avatar 3D avançado + cenários</li>
+          <li>Planejador semanal completo</li>
+          <li>Desencalhar peça com IA</li>
+          <li>Wishlist + validação de compra</li>
+          <li>Custo por uso + relatórios</li>
+        </ul>
+        <a href="#cta" class="plan-btn">Assinar Premium</a>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">Anual</div>
+        <div class="plan-price">R$12</div>
+        <div class="plan-period">por mês · cobrado R$144/ano</div>
+        <ul class="plan-features">
+          <li>Tudo do Premium</li>
+          <li>Acesso antecipado a funções beta</li>
+          <li>Badge exclusivo no avatar</li>
+          <li>Suporte prioritário</li>
+          <li>Exportação de dados do armário</li>
+          <li class="disabled">–</li>
+          <li class="disabled">–</li>
+        </ul>
+        <a href="#cta" class="plan-btn">Economizar 37%</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="cta-tag">🚀 LANÇAMENTO EM BREVE</div>
+  <h2 class="section-title reveal">Chega de abrir<br>o armário e travar</h2>
+  <p class="reveal">Entra na lista de espera e garante acesso antecipado + 3 meses de Premium grátis.</p>
+  <form onsubmit="handleForm(event)" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;" class="reveal">
+    <input type="email" id="email-input" placeholder="seu@email.com" required
+      style="padding:0.85rem 1.4rem; border-radius:100px; border:1.5px solid var(--border);
+      background:white; font-size:1rem; width:300px; outline:none; font-family:'DM Sans',sans-serif;">
+    <button type="submit"
+      style="background:var(--ink); color:var(--cream); padding:0.85rem 2rem; border-radius:100px;
+      border:none; font-size:1rem; font-weight:500; cursor:pointer; font-family:'DM Sans',sans-serif;
+      transition:background 0.2s;">
+      Quero entrar ✦
+    </button>
+  </form>
+  <div id="form-msg" style="margin-top:1rem; font-size:0.85rem; color:var(--purple); font-weight:500; min-height:24px;"></div>
+  <p style="font-size:0.78rem; color:var(--muted); margin-top:1rem; margin-bottom:0;">Sem spam. Sem cartão. Só drip.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">DRIP</div>
+  <div class="footer-links">
+    <a href="#">Sobre</a>
+    <a href="#">Privacidade</a>
+    <a href="#">Termos</a>
+    <a href="#">Contato</a>
+    <a href="#">Instagram</a>
+    <a href="#">TikTok</a>
+  </div>
+  <div class="footer-right">© 2025 DRIP — Guarda-Roupa Virtual</div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.style.transitionDelay = (i * 0.07) + 's';
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+
+  function handleForm(e) {
+    e.preventDefault();
+    const v = document.getElementById('email-input').value;
+    const msg = document.getElementById('form-msg');
+    msg.textContent = '🎉 Arrasou! Você entrou na lista. Prepara o look.';
+    document.getElementById('email-input').value = '';
+    setTimeout(() => { msg.textContent = ''; }, 5000);
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>
